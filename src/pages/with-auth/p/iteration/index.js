@@ -1,8 +1,9 @@
 import { Component } from 'react'
 import { getIterations, createIteration } from './service'
 import { connect } from 'react-redux'
-import { Table, Button, Modal, Form, Input, DatePicker } from 'antd'
+import { Table, Button, message } from 'antd'
 import s from './style.less'
+import CreateModal from '@/components/create-modal'
 
 @connect(
   store => ({ projectInfo: store.projectInfo })
@@ -33,49 +34,47 @@ class Iteration extends Component {
       },
     ],
     visible: false,
+    forms: [
+      {
+        label: '迭代名称',
+        name: 'name',
+        rules: [
+          { required: true, message: '请输入迭代名称' },
+        ],
+      },
+      {
+        type: 'editor',
+        label: '迭代描述',
+        name: 'desc',
+      },
+    ],
+    extraForms: [
+      {
+        type: 'date',
+        label: '开始日期',
+        name: 'startDate',
+      },
+      {
+        type: 'date',
+        label: '结束日期',
+        name: 'endDate',
+      },
+    ],
   }
 
   render() {
-    const { columns, iterations, visible } = this.state
+    const { columns, iterations, visible, forms, extraForms } = this.state
 
     return (
       <div className={s.wrapper}>
-        <Modal
+        <CreateModal
+          width={935}
           visible={visible}
           title='新建迭代'
           onCancel={() => this.hanldeVisibleChange(false)}
-          maskClosable={false}
-          footer={null}>
-          <Form
-            layout='vertical'
-            onFinish={this.onFinish}>
-            <Form.Item
-              label='迭代名称'
-              name='name'
-              rules={[{ required: true, message: '请输入迭代名称' }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item
-              label='迭代描述'
-              name='desc'
-              rules={[{ required: true, message: '请输入迭代描述' }]}>
-              <Input.TextArea />
-            </Form.Item>
-            <Form.Item
-              label='开始日期'
-              name='startDate'
-              rules={[{ required: true, message: '请选择开始日期' }]}>
-              <DatePicker />
-            </Form.Item>
-            <Form.Item
-              label='结束日期'
-              name='endDate'
-              rules={[{ required: true, message: '请选择结束日期' }]}>
-              <DatePicker />
-            </Form.Item>
-            <Button type='primary' htmlType='submit'>创建</Button>
-          </Form>
-        </Modal>
+          forms={forms}
+          extraForms={extraForms}
+          onFinish={this.onFinish} />
         <div className={s.operations}>
           <Button type='primary' onClick={() => this.hanldeVisibleChange(true)}>创建迭代</Button>
         </div>
@@ -85,6 +84,10 @@ class Iteration extends Component {
   }
 
   componentDidMount() {
+    this.fetchIterations()
+  }
+
+  fetchIterations = () => {
     const { projectInfo } = this.props
 
     if (projectInfo.id) {
@@ -102,15 +105,11 @@ class Iteration extends Component {
 
   onFinish = values => {
     const { projectInfo } = this.props
-    const { name, desc, startDate, endDate } = values
 
-    createIteration(projectInfo.id, {
-      name,
-      desc,
-      startDate: startDate && startDate.format('YYYY-MM-DD'),
-      endDate: endDate && endDate.format('YYYY-MM-DD'),
-    }).then(() => {
+    createIteration(projectInfo.id, values).then(() => {
+      message.success('创建成功')
       this.hanldeVisibleChange(false)
+      this.fetchIterations()
     })
   }
 }

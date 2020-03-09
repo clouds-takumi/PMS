@@ -1,91 +1,137 @@
 import { Component } from 'react'
-import { Form, Input, Button } from 'antd';
 import s from './style.less'
 import router from 'umi/router';
 import { toLogin, toRegister } from './service'
+import FormGroup from '@/components/form-group'
 
 class Login extends Component {
   state = {
-    type: 1
+    type: 1,
+    loginForms: [
+      {
+        name: 'username',
+        label: '',
+        placeholder: '用户名',
+        size: 'large',
+        rules: [
+          { required: true, message: '请输入用户名' },
+          { min: 6, message: '用户名至少6位' },
+        ],
+      },
+      {
+        type: 'password',
+        name: 'password',
+        label: '',
+        placeholder: '密码',
+        size: 'large',
+        rules: [
+          { required: true, message: '请输入密码' },
+          { min: 6, message: '密码至少6位' },
+        ],
+      }
+    ],
+    registerForms: [
+      {
+        name: 'username',
+        label: '',
+        placeholder: '用户名',
+        size: 'large',
+        rules: [
+          { required: true, message: '请输入用户名' },
+          { min: 6, message: '用户名至少6位' },
+        ],
+      },
+      {
+        type: 'password',
+        name: 'password',
+        label: '',
+        placeholder: '密码',
+        size: 'large',
+        rules: [
+          { required: true, message: '请输入密码' },
+          { min: 6, message: '密码至少6位' },
+        ],
+      },
+      {
+        type: 'password',
+        name: 'repassword',
+        label: '',
+        placeholder: '确认密码',
+        size: 'large',
+        dependencies: ['password'],
+        rules: [
+          { required: true, message: '请输入确认密码' },
+          ({ getFieldValue }) => ({
+            validator(rule, value) {
+              if (!value || getFieldValue('password') === value) {
+                return Promise.resolve();
+              }
+              return Promise.reject('两次输入密码不相同');
+            }
+          })
+        ],
+      }
+    ],
   }
 
   render() {
-    const { type } = this.state
+    const { type, loginForms, registerForms } = this.state
 
     return (
       <div className={s.wrapper}>
         <div className={s.logo}>PMS</div>
         <div className={s.box}>
-          <Form
-            size='large'
-            onFinish={this.onFinish}>
-            { type === 1 && this.renderLogin() }
-            { type === 2 && this.renderRegister() }
-            <Button type='primary' htmlType='submit' style={{width: '100%'}}>
-              { type === 1 && '登录' }
-              { type === 2 && '注册' }
-            </Button>
-          </Form>
+          {
+            type === 1 && (
+              <>
+                <FormGroup
+                  forms={loginForms}
+                  onFinish={this.loginFinish}
+                  btnText='登录'
+                  btnStyle={{ width: '100%' }} />
+                <div className={s.text}>
+                  还没帐号?
+                  <span onClick={() => this.handleChangeType(2)}>去注册</span>
+                </div>
+              </>
+            )
+          }
+          {
+            type === 2 && (
+              <>
+                <FormGroup
+                  forms={registerForms}
+                  onFinish={this.registerFinish}
+                  btnText='注册'
+                  btnStyle={{ width: '100%' }} />
+                <div className={s.text}>
+                  已有帐号?
+                  <span onClick={() => this.handleChangeType(1)}>去登录</span>
+                </div>
+              </>
+            )
+          }
         </div>
       </div>
     )
   }
 
-  renderLogin = () => {
-    return (
-      <>
-        <Form.Item
-          label=''
-          name='username'
-          rules={[{ required: true, message: '请输入用户名' }]}
-        >
-          <Input placeholder='用户名' />
-        </Form.Item>
-        <Form.Item
-          label=''
-          name='password'
-          rules={[{ required: true, message: '请输入密码' }]}
-        >
-          <Input.Password placeholder='密码' />
-        </Form.Item>
-        <div className={s.text}>
-          还没帐号?
-          <span onClick={() => this.handleChangeType(2)}>去注册</span>
-        </div>
-      </>
-    )
+  loginFinish = (values) => {
+    console.log(values)
+    toLogin(values).then(({ data }) => {
+      if (data && data.token) {
+        localStorage.setItem('token', data.token)
+        router.replace('/')
+      }
+    })
   }
 
-  renderRegister = () => {
-    return (
-      <>
-        <Form.Item
-          label=''
-          name='username'
-          rules={[{ required: true, message: '请输入用户名' }]}
-        >
-          <Input placeholder='用户名' />
-        </Form.Item>
-        <Form.Item
-          label=''
-          name='password'
-          rules={[{ required: true, message: '请输入密码' }]}
-        >
-          <Input.Password placeholder='密码' />
-        </Form.Item>
-        <Form.Item
-          label=''
-          name='repassword'
-          rules={[{ required: true, message: '请输入确认密码' }]}
-        >
-          <Input.Password placeholder='确认密码' />
-        </Form.Item>
-        <div className={s.text}>
-          已有帐号?
-          <span onClick={() => this.handleChangeType(1)}>去登录</span>
-        </div>
-      </>
-    )
+  registerFinish = (values) => {
+    const { username, password } = values
+
+    toRegister({ username, password }).then(({ data }) => {
+      this.handleChangeType(1)
+    })
   }
 
   componentDidMount() {
@@ -98,19 +144,6 @@ class Login extends Component {
 
   handleChangeType = type => {
     this.setState({ type })
-  }
-
-  onFinish = (values) => {
-    const { type } = this.state
-
-    if (type === 1) {
-      toLogin(values).then(({ data }) => {
-        if (data && data.token) {
-          localStorage.setItem('token', data.token)
-          router.replace('/')
-        }
-      })
-    }
   }
 }
 
