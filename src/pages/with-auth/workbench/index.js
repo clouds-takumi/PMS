@@ -3,41 +3,41 @@ import { RightOutlined, PlusOutlined } from '@ant-design/icons'
 import Link from 'umi/link'
 import s from './style.less'
 import { getProjects, createProject } from './service'
-import { Modal, Form, Input, Button } from 'antd'
 import router from 'umi/router'
+import CreateModal from '@/components/create-modal'
+import { message } from 'antd'
 
 class User extends Component {
   state = {
     projects: [],
     visible: false,
+    forms: [
+      {
+        name: 'name',
+        label: '项目标题',
+        rules: [
+          { required: true, message: '请输入项目标题' },
+        ],
+      },
+      {
+        name: 'desc',
+        label: '项目描述',
+        type: 'editor',
+      }
+    ],
   }
 
   render() {
-    const { projects, visible } = this.state
+    const { projects, visible, forms } = this.state
 
     return (
       <div className={s.wrapper}>
-        <Modal
+        <CreateModal
           title='新建项目'
           visible={visible}
-          footer={null}
-          maskClosable={false}
-          onCancel={() => this.handleVisibleChange(false)}>
-          <Form
-            layout='vertical'
-            onFinish={this.onFinish}>
-            <Form.Item
-              label='项目标题'
-              name='name'
-              rules={[{ required: true, message: '请输入项目标题' }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item label='项目描述' name='desc'>
-              <Input.TextArea />
-            </Form.Item>
-            <Button type='primary' htmlType='submit'>创建</Button>
-          </Form>
-        </Modal>
+          onCancel={() => this.handleVisibleChange(false)}
+          forms={forms}
+          onFinish={this.onFinish} />
         <div className={s.projects}>
           <h3 className={s.projectsTitle}>
             我的项目
@@ -53,7 +53,11 @@ class User extends Component {
                   <div className={s.projectsLeft}></div>
                   <div className={s.projectsRight}>
                     <div className={s.projectsName}>{project.name}</div>
-                    <div className={s.projectsDesc}>{project.desc || '未填写描述'}</div>
+                    {
+                      project.desc && project.desc !== '<p></p>' ? (
+                        <div className={s.projectsDesc} dangerouslySetInnerHTML = {{ __html: project.desc }}></div>
+                      ) :  <div className={s.projectsDesc}>未填写描述</div>
+                    }
                   </div>
                 </div>
               ))
@@ -88,6 +92,7 @@ class User extends Component {
 
   onFinish = values => {
     createProject(values).then(() => {
+      message.success('创建成功')
       this.fetchProjects()
       this.handleVisibleChange(false)
     })

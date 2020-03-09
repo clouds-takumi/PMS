@@ -5,3 +5,9 @@ export const toLogin = (data) => request({
   url: '/login',
   data,
 })
+
+export const toRegister = (data) => request({
+  method: 'post',
+  url: '/register',
+  data,
+})
