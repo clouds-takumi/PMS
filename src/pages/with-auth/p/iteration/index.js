@@ -1,8 +1,9 @@
 import { Component } from 'react'
-import { getIterations, createIteration } from './service'
+import { getIterations, createIteration, delIdIteration } from './service'
 import { connect } from 'react-redux'
-import { Table, Button, message } from 'antd'
+import { Table, Button, message, Divider, Modal } from 'antd'
 import s from './style.less'
+import moment from 'moment'
 import CreateModal from '@/components/create-modal'
 
 @connect(
@@ -10,27 +11,70 @@ import CreateModal from '@/components/create-modal'
 )
 class Iteration extends Component {
   state = {
-    iterations: [],
+    iterations: {},
+    iterName: '',
+    id: null,
+    delFlag: false,
     columns: [
       {
         title: '迭代名称',
         dataIndex: 'name',
         key: 'name',
+        width: 120,
+        render: dataIndex => <div className={s.iterName} >{dataIndex}</div>
       },
       {
         title: '开始日期',
         dataIndex: 'startDate',
         key: 'startDate',
+        width: 120,
+        render: dataIndex => {
+          if (dataIndex) {
+            return <div>{moment(dataIndex).format('YYYY/MM/DD')}</div>
+          } else {
+            return <div>未设定</div>
+          }
+        }
       },
       {
         title: '结束日期',
         dataIndex: 'endDate',
         key: 'endDate',
+        width: 120,
+        render: dataIndex => {
+          if (dataIndex) {
+            return <div>{moment(dataIndex).format('YYYY/MM/DD')}</div>
+          } else {
+            return <div>未设定</div>
+          }
+        }
       },
       {
         title: '负责人',
         dataIndex: 'assigneeName',
         key: 'assigneeName',
+        width: 120,
+        render: dataIndex => {
+          if (dataIndex) {
+            return <div>{dataIndex}</div>
+          } else {
+            return <div>未分配</div>
+          }
+        }
+      },
+      {
+        title: '操作',
+        key: 'operation',
+        width: 120,
+        render: iteration => {
+          return (
+            <>
+              <span className={s.operateEdit} >编辑</span>
+              <Divider type='vertical' />
+              <span className={s.operatDel} onClick={() => this.showDeleteModal(iteration)}>删除</span>
+            </>
+          )
+        }
       },
     ],
     visible: false,
@@ -40,6 +84,7 @@ class Iteration extends Component {
         name: 'name',
         rules: [
           { required: true, message: '请输入迭代名称' },
+          { max: 20, message: '名称不能大于20个字符', }
         ],
       },
       {
@@ -53,18 +98,46 @@ class Iteration extends Component {
         type: 'date',
         label: '开始日期',
         name: 'startDate',
+        rules: [
+          { required: true, message: '请选择开始日期' },
+        ],
       },
       {
         type: 'date',
         label: '结束日期',
         name: 'endDate',
+        rules: [
+          { required: true, message: '请选择迭代名称' },
+        ],
       },
     ],
   }
 
-  render() {
-    const { columns, iterations, visible, forms, extraForms } = this.state
+  renderDelModal = () => {
+    const { iterName } = this.state
+    return (
+      <Modal
+        title={null}
+        visible
+        closable={false}
+        footer={null}
+        onCancel={eve => eve.stopPropagation()}>
+        <div className={s.delRoot}>
+          <div className={s.title}>删除迭代</div>
+          <span className={s.subtitle}>
+            当前正在删除迭代 <span style={{ color: 'red' }}>{iterName}</span>，该迭代下的所有事项将移入未规划，此操作不可撤销，是否确认？
+            </span>
+          <div className={s.btnGroup}>
+            <Button type='primary' onClick={this.handleConfirmDel} className={s.btn}>确认</Button>
+            <Button onClick={this.closeDeleteModal}>取消</Button>
+          </div>
+        </div>
+      </Modal>
+    )
+  }
 
+  render() {
+    const { columns, iterations, visible, forms, extraForms, delFlag } = this.state
     return (
       <div className={s.wrapper}>
         <CreateModal
@@ -78,7 +151,16 @@ class Iteration extends Component {
         <div className={s.operations}>
           <Button type='primary' onClick={() => this.hanldeVisibleChange(true)}>创建迭代</Button>
         </div>
-        <Table dataSource={iterations} columns={columns} />
+        <Table
+          className={s.table}
+          dataSource={iterations.lists}
+          columns={columns}
+          rowKey='id'
+          // pagination={{ total: iterations.total, pageSize: iterations.pageSize, hideOnSinglePage: true, onChange: this.handlePageChange }}
+        />
+        {
+          delFlag && this.renderDelModal()
+        }
       </div>
     )
   }
@@ -87,21 +169,35 @@ class Iteration extends Component {
     this.fetchIterations()
   }
 
-  fetchIterations = () => {
+  fetchIterations = page => {
     const { projectInfo } = this.props
 
     if (projectInfo.id) {
-      getIterations(projectInfo.id).then(({ data }) => {
-        if (data.lists) {
-          this.setState({ iterations: data.lists })
+      getIterations(projectInfo.id, { page }).then(({ data }) => {
+        if (data) {
+          console.log(data)
+          this.setState({ iterations: data })
         }
       })
     }
   }
 
-  hanldeVisibleChange = visible => {
-    this.setState({ visible })
+  handlePageChange = page => { this.fetchIterations(page) }
+
+  showDeleteModal = iteration => this.setState({ iterName: iteration.name, id: iteration.id, delFlag: true })
+  closeDeleteModal = () => this.setState({ delFlag: false, iterName: '', id: null })
+
+  handleConfirmDel = () => {
+    const { id } = this.state
+    const { projectInfo } = this.props
+    delIdIteration(projectInfo, id).then(() => {
+      message.success(`删除成功`)
+      this.fetchIterations()
+      this.setState({ delFlag: false, iterName: '', id: null })
+    })
   }
+
+  hanldeVisibleChange = visible => { this.setState({ visible }) }
 
   onFinish = values => {
     const { projectInfo } = this.props
