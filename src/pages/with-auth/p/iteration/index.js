@@ -53,11 +53,17 @@ class Iteration extends Component {
         type: 'date',
         label: '开始日期',
         name: 'startDate',
+        rules: [
+          { required: true, message: '请选择开始日期' },
+        ],
       },
       {
         type: 'date',
         label: '结束日期',
         name: 'endDate',
+        rules: [
+          { required: true, message: '请选择结束日期' },
+        ],
       },
     ],
   }

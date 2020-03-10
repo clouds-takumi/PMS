@@ -13,10 +13,14 @@ axios.interceptors.response.use(
   response => {
     const { status, data } = response
     if (status === 200 && data.code !== 0) {
+      message.error(data.msg)
       if (data.code === 2) {
+        localStorage.removeItem('token')
         router.replace('/login')
       }
-      message.error(data.msg)
+      if (data.code === 1) {
+        return Promise.reject(response)
+      }
     }
     return data
   },

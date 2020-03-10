@@ -117,7 +117,6 @@ class Login extends Component {
   }
 
   loginFinish = (values) => {
-    console.log(values)
     toLogin(values).then(({ data }) => {
       if (data && data.token) {
         localStorage.setItem('token', data.token)
