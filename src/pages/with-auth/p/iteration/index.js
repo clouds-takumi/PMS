@@ -107,7 +107,7 @@ class Iteration extends Component {
         label: '结束日期',
         name: 'endDate',
         rules: [
-          { required: true, message: '请选择迭代名称' },
+          { required: true, message: '请选择结束日期' },
         ],
       },
     ],

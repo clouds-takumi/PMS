@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import { connect } from 'react-redux'
-import { Menu, Dropdown, Avatar } from 'antd';
+import { Menu, Dropdown, Avatar, Spin } from 'antd';
 import { DownOutlined, LeftOutlined } from '@ant-design/icons';
 import s from './style.less'
 import router from 'umi/router';
@@ -16,9 +16,14 @@ const pathReg = /^\/p/
   })
 )
 class WithAuth extends Component {
+  state = {
+    inited: false,
+  }
+
   render() {
     const { children, userInfo, projectInfo, location } = this.props
     const { pathname } = location
+    const { inited } = this.state
 
     let showLogo = true
     if (pathReg.test(pathname)) {
@@ -50,7 +55,15 @@ class WithAuth extends Component {
           </div>
         </div>
         <div className={s.body}>
-          {children}
+          {
+            inited
+              ? children
+              : (
+                <div className={s.spin}>
+                  <Spin />
+                </div>
+              )
+          }
         </div>
       </div>
     )
@@ -75,6 +88,7 @@ class WithAuth extends Component {
 
     getUserInfo().then(({ data }) => {
       if (data) {
+        this.setState({ inited: true })
         this.props.setUserInfo(data)
       }
     })

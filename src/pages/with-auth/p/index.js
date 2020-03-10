@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { Menu } from 'antd'
+import { Menu, Spin } from 'antd'
 import Link from 'umi/link'
 import { menu } from './constant'
 import s from './style.less'
@@ -14,8 +14,13 @@ import { getProject } from './service'
   })
 )
 class P extends Component {
+  state = {
+    inited: false,
+  }
+
   render() {
     const { children } = this.props
+    const { inited } = this.state
 
     return (
       <div className={s.wrapper}>
@@ -23,7 +28,15 @@ class P extends Component {
           {this.renderMenu()}
         </div>
         <div className={s.main}>
-          {children}
+          {
+            inited
+              ? children
+              : (
+                <div className={s.spin}>
+                  <Spin />
+                </div>
+              )
+          }
         </div>
       </div>
     )
@@ -57,6 +70,7 @@ class P extends Component {
     if (projectId) {
       getProject({ id: projectId }).then(({ data }) => {
         if (data) {
+          this.setState({ inited: true })
           this.props.setProjectInfo(data)
         }
       })
