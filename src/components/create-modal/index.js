@@ -15,7 +15,7 @@ class CreateModal extends Component {
   }
 
   render() {
-    const { visible, title, onCancel, forms, onFinish, width, extraForms } = this.props
+    const { width, visible, title, onCancel, forms, extraForms, onFinish } = this.props
 
     return (
       <Modal

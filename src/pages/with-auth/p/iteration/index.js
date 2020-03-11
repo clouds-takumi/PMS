@@ -84,7 +84,7 @@ class Iteration extends Component {
         name: 'name',
         rules: [
           { required: true, message: '请输入迭代名称' },
-          { max: 20, message: '名称不能大于20个字符', }
+          { max: 20, message: '名称不能大于20个字符'}
         ],
       },
       {
@@ -144,19 +144,19 @@ class Iteration extends Component {
           width={935}
           visible={visible}
           title='新建迭代'
-          onCancel={() => this.hanldeVisibleChange(false)}
+          onCancel={() => this.handleVisibleChange(false)}
           forms={forms}
           extraForms={extraForms}
           onFinish={this.onFinish} />
         <div className={s.operations}>
-          <Button type='primary' onClick={() => this.hanldeVisibleChange(true)}>创建迭代</Button>
+          <Button type='primary' onClick={() => this.handleVisibleChange(true)}>创建迭代</Button>
         </div>
         <Table
           className={s.table}
           dataSource={iterations.lists}
           columns={columns}
           rowKey='id'
-          // pagination={{ total: iterations.total, pageSize: iterations.pageSize, hideOnSinglePage: true, onChange: this.handlePageChange }}
+        // pagination={{ total: iterations.total, pageSize: iterations.pageSize, hideOnSinglePage: true, onChange: this.handlePageChange }}
         />
         {
           delFlag && this.renderDelModal()
@@ -165,9 +165,7 @@ class Iteration extends Component {
     )
   }
 
-  componentDidMount() {
-    this.fetchIterations()
-  }
+  componentDidMount() { this.fetchIterations() }
 
   fetchIterations = page => {
     const { projectInfo } = this.props
@@ -175,7 +173,6 @@ class Iteration extends Component {
     if (projectInfo.id) {
       getIterations(projectInfo.id, { page }).then(({ data }) => {
         if (data) {
-          console.log(data)
           this.setState({ iterations: data })
         }
       })
@@ -190,14 +187,14 @@ class Iteration extends Component {
   handleConfirmDel = () => {
     const { id } = this.state
     const { projectInfo } = this.props
-    delIdIteration(projectInfo, id).then(() => {
+    delIdIteration(projectInfo.id, id).then(() => {
       message.success(`删除成功`)
       this.fetchIterations()
       this.setState({ delFlag: false, iterName: '', id: null })
     })
   }
 
-  hanldeVisibleChange = visible => { this.setState({ visible }) }
+  handleVisibleChange = visible => { this.setState({ visible }) }
 
   onFinish = values => {
     const { projectInfo } = this.props

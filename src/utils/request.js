@@ -12,6 +12,7 @@ axios.interceptors.request.use(
 axios.interceptors.response.use(
   response => {
     const { status, data } = response
+    console.log(response)
     if (status === 200 && data.code !== 0) {
       message.error(data.msg)
       if (data.code === 2) {

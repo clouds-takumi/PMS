@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import { getIssues, createIssue } from './service'
 import { connect } from 'react-redux'
-import { Table, Button, message } from 'antd'
+import { Table, Button, message, Divider, Popconfirm } from 'antd'
 import s from './style.less'
 import CreateModal from '@/components/create-modal'
 import moment from 'moment'
@@ -24,14 +24,7 @@ class Issue extends Component {
       {
         title: '负责人',
         dataIndex: 'assignee',
-        key: 'assignee',
-        // render: dataIndex => {
-        //   if (dataIndex) {
-        //     return <div>{this.state.userInfo.username}</div>
-        //   } else {
-        //     return <div>未分配</div>
-        //   }
-        // }
+        key: 'assignee'
       },
       {
         title: '优先级',
@@ -77,26 +70,26 @@ class Issue extends Component {
           }
         }
       },
-      // {
-      //   title: '操作',
-      //   key: 'operate',
-      //   render: issue => {
-      //     return (
-      //       <>
-      //         <span className={s.operate} onClick={() => this.issueEdit(issue)}>编辑</span>
-      //         <Divider type='vertical' />
-      //         <Popconfirm
-      //           title='确认删除?'
-      //           onConfirm={() => this.delCurIssue(issue.id)}
-      //           okText="确定"
-      //           cancelText="取消"
-      //         >
-      //           <span style={{ cursor: 'pointer', color: '#dd3e6e' }}>删除</span>
-      //         </Popconfirm>
-      //       </>
-      //     )
-      //   }
-      // },
+      {
+        title: '操作',
+        key: 'operate',
+        render: issue => {
+          return (
+            <>
+              <span className={s.operate} onClick={() => this.issueEdit(issue)}>编辑</span>
+              <Divider type='vertical' />
+              <Popconfirm
+                title='确认删除?'
+                onConfirm={() => this.delCurIssue(issue.id)}
+                okText="确定"
+                cancelText="取消"
+              >
+                <span style={{ cursor: 'pointer', color: '#dd3e6e' }}>删除</span>
+              </Popconfirm>
+            </>
+          )
+        }
+      },
     ],
     visible: false,
     forms: [
@@ -105,6 +98,7 @@ class Issue extends Component {
         name: 'name',
         rules: [
           { required: true, message: '请输入事项名称' },
+          { max: 20, message: '名称不能大于20个字符' }
         ],
       },
       {
@@ -115,15 +109,26 @@ class Issue extends Component {
     ],
     extraForms: [
       {
-        type: 'date',
-        label: '开始日期',
-        name: 'startDate',
+        type: 'select',
+        label: '优先级',
+        name: 'priority',
+        rules: [{ required: true, message: '请选择优先等级' }]
+      },
+      {
+        type: 'select',
+        label: '负责人',
+        name: 'assignee',
       },
       {
         type: 'date',
-        label: '结束日期',
-        name: 'endDate',
+        label: '截止日期',
+        name: 'deadline',
       },
+      {
+        type: 'select',
+        label: '所属迭代',
+        name: 'iterationId',
+      }
     ],
   }
 

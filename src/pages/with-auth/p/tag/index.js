@@ -1,16 +1,10 @@
 import { PureComponent } from 'react'
 import s from './style.less'
-import _ from 'lodash'
 import { connect } from 'react-redux'
-import InputColor from 'react-input-color'
-import { Table, Divider, Tag, Button, Modal, Input, Popconfirm, Icon, message } from 'antd'
-import { reqTags, addTag, delIdTag, updataIdTag } from './service'
+import { Table, Divider, Tag, Button, Popconfirm, message } from 'antd'
+import { getTags, createTag, deleteCurTag, updateCurTag } from './service'
+import CreateModal from '@/components/create-modal'
 
-const initialTagColor = '#5e72e4'
-
-@connect(
-  store => ({ projectInfo: store.projectInfo })
-)
 class Tags extends PureComponent {
   constructor(props) {
     super(props)
@@ -18,7 +12,6 @@ class Tags extends PureComponent {
       tags: [],
       loading: false,
       tagName: '',
-      tagColor: initialTagColor,
       tagId: '',
       columns: [
         {
@@ -33,155 +26,103 @@ class Tags extends PureComponent {
           key: 'operate',
           render: tag => {
             return (
-              <>
-                <span className={s.operate} onClick={() => this.tagEdit(tag)}>编辑</span>
+              <div>
+                <span className={s.operateEdit} onClick={() => this.tagEdit(tag)}>编辑</span>
                 <Divider type='vertical' />
                 <Popconfirm
                   title='确认删除?'
-                  onConfirm={() => this.tagDelete(tag.id)}
+                  onConfirm={() => this.deleteTag(tag.id)}
                   okText="确定"
                   cancelText="取消"
                 >
-                  <span style={{ cursor: 'pointer', color: '#f81d22' }}>删除</span>
+                  <span className={s.operateDel}>删除</span>
                 </Popconfirm>
-              </>
+              </div>
             )
           }
         },
       ],
       visible: false,
-    }
-  }
-
-  tagEdit = ({ id, name, color }) => this.setState({
-    visible: true,
-    tagName: name,
-    tagColor: color,
-    tagId: id,
-  })
-
-  tagDelete = id => {
-    delIdTag(id).then(() => this.fetchData())
-  }
-
-  tagCreate = () => this.setState({ visible: true })
-
-  closeModal = () => this.setState({ visible: false, tagName: '', tagColor: initialTagColor, tagId: '' })
-
-  handleSure = async () => {
-    const { tagName, tagColor, tagId } = this.state
-
-    if (!tagName) {
-      this.fun1()
-      return
-    }
-    if (tagName.length > 10) {
-      this.fun2()
-      return
-    }
-
-    let res
-    const params = {
-      name: tagName,
-      color: tagColor,
-    }
-
-    if (tagId) {
-      res = await updataIdTag(tagId, params)
-    } else {
-      res = await addTag(params)
-    }
-
-    if (res) {
-      this.closeModal()
-      this.fetchData()
-    }
-  }
-  fun1 = _.throttle(() => message.info({ top: 0, key: '1', content: '请填写标签名称' }), 3000)
-  fun2 = _.throttle(() => message.info({ top: 0, key: '1', content: '标签名称大于10个字符' }), 3000)
-
-  handleTagnameChange = e => {
-    this.setState({ tagName: e.target.value })
-  }
-
-  handleTagcolorChange = color => {
-    this.setState({ tagColor: color.hex })
-  }
-
-  fetchData = () => {
-    const { projectInfo } = this.props
-    this.setState({ loading: true })
-    if (projectInfo) {
-      reqTags(projectInfo.id).then(res => {
-        if (res) {
-          this.setState({ loading: false })
-          this.setState({ tags: res })
+      forms: [
+        {
+          label: '标签名称',
+          name: 'name',
+          rules: [
+            { required: true, message: '请输入标签名称' },
+            { max: 10, message: '名称不能大于10个字符', }
+          ]
+        },
+        {
+          type: 'color',
+          label: '标签颜色',
+          name: 'color',
+          initialValue: { color: '#5e72e4' }
         }
-      })
+      ]
     }
   }
-
-  componentDidMount() { this.fetchData() }
 
   render() {
-    const { tags, loading, visible, tagName, tagColor, tagId, columns } = this.state
+    const { tags, loading, columns, visible, forms } = this.state
     return (
-      <div className={s.tagRoot}>
-        <div className={s.titleroot}>
-          <Button className={s.addBtn} onClick={this.tagCreate}><Icon type='plus' />添加标签</Button>
-        </div>
-
-
-        <div className={s.tagContainer}>
-          <Table
-            className={s.table}
-            loading={loading}
-            dataSource={tags}
-            columns={columns}
-            rowKey='id'
-            pagination={false} />
-        </div>
-        <Modal
-          title={null}
+      <div className={s.wrapper}>
+        <CreateModal
+          width={423}
           visible={visible}
-          closable={false}
-          footer={null}
-          className={s.modal}
-          onCancel={(eve) => eve.stopPropagation()}
-        >
-          <div onClick={(eve) => eve.stopPropagation()} className={s.modalRoot}>
-            <div className={s.modalInfo}>
-              <div className={s.info}>
-                <span className={s.infoTitle}>预览</span>
-                {
-                  tagName && <Tag color={tagColor}>{tagName}</Tag>
-                }
-              </div>
-              <div className={s.info}>
-                <span className={s.infoTitle}>名称</span>
-                <Input
-                  placeholder='请输入标签名'
-                  value={tagName}
-                  onChange={this.handleTagnameChange} />
-              </div>
-              <div className={s.info}>
-                <span className={s.infoTitle}>颜色</span>
-                <InputColor
-                  initialHexColor={tagColor}
-                  onChange={this.handleTagcolorChange}
-                  placement="right"
-                />
-              </div>
-
-            </div>
-            <div className={s.modalBtn}>
-              <Button type='primary' onClick={this.handleSure} className={s.btn}>{tagId ? '修改' : '创建'}</Button>
-              <Button type='primary' onClick={this.closeModal} className={s.btn}>取消</Button>
-            </div>
-          </div>
-        </Modal>
-      </div>
+          title='创建标签'
+          onCancel={() => this.handleVisibleChange(false)}
+          forms={forms}
+          onFinish={this.onFinish} />
+        <div className={s.operations}>
+          <Button type='primary' onClick={() => this.handleVisibleChange(true)}>创建标签</Button>
+        </div>
+        <Table
+          className={s.table}
+          loading={loading}
+          dataSource={tags}
+          columns={columns}
+          rowKey='id'
+          pagination={false} />
+      </div >
     )
   }
+
+  componentDidMount() { this.fetchTags() }
+
+  fetchTags = () => {
+    const { projectInfo } = this.props
+
+    // this.setState({ loading: true })
+    // if (this.projectInfo) {
+    //   reqTags(this.projectInfo.id).then(({ data }) => {
+    //     if (data) {
+    //       this.setState({ loading: false })
+    //       this.setState({ tags: data })
+    //     }
+    //   })
+    // }
+  }
+
+  handleVisibleChange = visible => { this.setState({ visible }) }
+
+  onFinish = values => {
+    // createTag(projectInfo.id, values).then(() => {
+    //   message.success('创建成功')
+    //   this.handleVisibleChange(false)
+    //   this.fetchTags()
+    // })
+  }
+
+  deleteTag = id => {
+    const { projectInfo } = this.props
+
+    // if (projectInfo) {
+    //   deleteCurTag(projectInfo.id, id).then(() => this.fetchTags())
+    // }
+  }
+
+  tagEdit = ({ id, name, color }) => {
+
+  }
 }
-export default Tags
+export default connect(store => ({ projectInfo: store.projectInfo }))(Tags)

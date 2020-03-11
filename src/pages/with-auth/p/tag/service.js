@@ -1,30 +1,26 @@
 import request from '@/utils/request'
 
-export const reqTags = (projectId, params) => request({
-    method: 'get',
-    url: `/p/${projectId}/tags`,
-    params
+export const getTags = projectId => request({
+    url: `/p/${projectId}/tags`
 })
 
-export const reqIdTag = (projectId, id) => request({
-    method: 'get',
-    url: `/p/${projectId}/tag/${id}`
-})
-
-export const addTag = (projectId, data) => request({
+export const createTag = (projectId, data) => request({
     method: 'post',
-    url: `/p/${projectId}/iteration`,
+    url: `/p/${projectId}/tag`,
     data
 })
 
-export const delIdTag = (projectId, id) => request({
+export const deleteCurTag = (projectId, id) => request({
     method: 'delete',
     url: `/p/${projectId}/tag/${id}`
 })
 
-export const updataIdTag = (projectId, id, data) => request({
+export const updateCurTag = (projectId, id, data) => request({
     method: 'put',
     url: `/p/${projectId}/tag/${id}`,
     data
 })
 
+export const reqIdTag = (projectId, id) => request({
+    url: `/p/${projectId}/tag/${id}`
+})

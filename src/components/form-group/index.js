@@ -1,30 +1,31 @@
 import React, { Component } from 'react'
+import s from './style.less'
 import PropTypes from 'prop-types'
-import { Form, Input, DatePicker, Button } from 'antd'
+import { Form, Input, DatePicker, Button, Tag } from 'antd'
 import 'braft-editor/dist/index.css'
 import BraftEditor from 'braft-editor'
-import s from './style.less'
+import InputColor from 'react-input-color'
 
 class FormGroup extends Component {
   static propTypes = {
-    forms: PropTypes.array.isRequired,
     layout: PropTypes.string,
     btnText: PropTypes.string,
     btnStyle: PropTypes.object,
-    onFinish: PropTypes.func,
+    forms: PropTypes.array.isRequired,
     extraForms: PropTypes.array,
+    onFinish: PropTypes.func
   }
 
   static defaultProps = {
     layout: 'vertical',
     btnText: '创建',
-    extraForms: [],
+    extraForms: []
   }
 
   formRef = React.createRef()
 
   render() {
-    const { forms, layout, btnText, btnStyle, extraForms } = this.props
+    const { layout, btnText, btnStyle, forms, extraForms } = this.props
 
     return (
       <Form
@@ -54,7 +55,7 @@ class FormGroup extends Component {
     )
   }
 
-  renderForm = ({ type, name, placeholder, label, rules, size }) => {
+  renderForm = ({ type, name, placeholder, label, rules, size, initialValue }) => {
     let ele = <Input size={size} placeholder={placeholder} />
 
     if (type === 'password') {
@@ -69,19 +70,24 @@ class FormGroup extends Component {
       ele = <BraftEditor placeholder={placeholder} className={s.editor} />
     }
 
+    if (type === 'color') {
+      const initialColor = initialValue.color || '#5e72e4'
+      ele = <InputColor initialHexColor={initialColor} placement="right" />
+    }
+
     return (
       <Form.Item
         key={name}
         label={label}
         name={name}
         rules={rules}>
-        { ele }
+        {ele}
       </Form.Item>
     )
   }
 
   handleFinish = values => {
-    const { desc, startDate, endDate, ...restValues } = values
+    const { desc, startDate, endDate, color, ...restValues } = values
     const { onFinish } = this.props
 
     if (desc) {
@@ -94,6 +100,10 @@ class FormGroup extends Component {
 
     if (endDate) {
       restValues.endDate = endDate.format('YYYY-MM-DD')
+    }
+
+    if (color) {
+      restValues.color = color.hex
     }
 
     if (typeof onFinish === 'function') {
