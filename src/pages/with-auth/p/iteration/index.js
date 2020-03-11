@@ -5,6 +5,7 @@ import { Table, Button, message, Divider, Modal } from 'antd'
 import s from './style.less'
 import moment from 'moment'
 import CreateModal from '@/components/create-modal'
+import SideSlip from '@/components/side-slip'
 
 @connect(
   store => ({ projectInfo: store.projectInfo })
@@ -15,13 +16,14 @@ class Iteration extends Component {
     iterName: '',
     id: null,
     delFlag: false,
+    sideSlipVisible: false,
     columns: [
       {
         title: '迭代名称',
         dataIndex: 'name',
         key: 'name',
         width: 120,
-        render: dataIndex => <div className={s.iterName} >{dataIndex}</div>
+        render: dataIndex => <div className={s.iterName} onClick={() => this.handleSideSlipVisible(true)} >{dataIndex}</div>
       },
       {
         title: '开始日期',
@@ -137,7 +139,7 @@ class Iteration extends Component {
   }
 
   render() {
-    const { columns, iterations, visible, forms, extraForms, delFlag } = this.state
+    const { columns, iterations, visible, forms, extraForms, delFlag, sideSlipVisible } = this.state
     return (
       <div className={s.wrapper}>
         <CreateModal
@@ -151,6 +153,9 @@ class Iteration extends Component {
         <div className={s.operations}>
           <Button type='primary' onClick={() => this.handleVisibleChange(true)}>创建迭代</Button>
         </div>
+        <SideSlip
+          visible={sideSlipVisible}
+          onCancel={() => this.handleSideSlipVisible(false)} />
         <Table
           className={s.table}
           dataSource={iterations.lists}
@@ -166,6 +171,12 @@ class Iteration extends Component {
   }
 
   componentDidMount() { this.fetchIterations() }
+
+  handleSideSlipVisible = visible => {
+    this.setState({
+      sideSlipVisible: visible,
+    })
+  }
 
   fetchIterations = page => {
     const { projectInfo } = this.props

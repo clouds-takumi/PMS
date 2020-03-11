@@ -5,6 +5,7 @@ import { Table, Button, message, Divider, Popconfirm } from 'antd'
 import s from './style.less'
 import CreateModal from '@/components/create-modal'
 import moment from 'moment'
+import { UpCircleFilled, MinusCircleFilled, DownCircleFilled } from '@ant-design/icons'
 
 const priorityMap = [
   { id: 1, name: '紧急' },
@@ -112,12 +113,19 @@ class Issue extends Component {
         type: 'select',
         label: '优先级',
         name: 'priority',
-        rules: [{ required: true, message: '请选择优先等级' }]
+        rules: [{ required: true, message: '请选择优先等级' }],
+        placeholder: '请选择优先等级',
+        options: [
+          { value: 3, name: <div><UpCircleFilled style={{color: 'red'}} /> 高 </div>},
+          { value: 2, name: <div><MinusCircleFilled style={{color: 'orange'}} /> 中 </div> },
+          { value: 1, name: <div><DownCircleFilled style={{color: 'green'}} /> 低 </div> },
+        ],
       },
       {
         type: 'select',
         label: '负责人',
         name: 'assignee',
+        options: [],
       },
       {
         type: 'date',
@@ -128,6 +136,7 @@ class Issue extends Component {
         type: 'select',
         label: '所属迭代',
         name: 'iterationId',
+        options: [],
       }
     ],
   }
@@ -161,11 +170,10 @@ class Issue extends Component {
     const { projectInfo } = this.props
 
     if (projectInfo.id) {
-      getIssues(projectInfo.id).then(res => {
-        console.log(res)
-        // if (data.lists) {
-        //   this.setState({ iterations: data.lists })
-        // }
+      getIssues(projectInfo.id).then(({ data }) => {
+        if (data.lists) {
+          this.setState({ iterations: data.lists })
+        }
       })
     }
   }

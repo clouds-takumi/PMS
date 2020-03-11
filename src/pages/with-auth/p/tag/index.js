@@ -77,7 +77,7 @@ class Tags extends PureComponent {
           <Button type='primary' onClick={() => this.handleVisibleChange(true)}>创建标签</Button>
         </div>
         <Table
-          className={s.table}
+          // className={s.table}
           loading={loading}
           dataSource={tags}
           columns={columns}
@@ -92,25 +92,26 @@ class Tags extends PureComponent {
   fetchTags = () => {
     const { projectInfo } = this.props
 
-    // this.setState({ loading: true })
-    // if (this.projectInfo) {
-    //   reqTags(this.projectInfo.id).then(({ data }) => {
-    //     if (data) {
-    //       this.setState({ loading: false })
-    //       this.setState({ tags: data })
-    //     }
-    //   })
-    // }
+    this.setState({ loading: true })
+    if (projectInfo) {
+      getTags(projectInfo.id).then(({ data }) => {
+        if (data) {
+          this.setState({ loading: false })
+          this.setState({ tags: data })
+        }
+      })
+    }
   }
 
   handleVisibleChange = visible => { this.setState({ visible }) }
 
   onFinish = values => {
-    // createTag(projectInfo.id, values).then(() => {
-    //   message.success('创建成功')
-    //   this.handleVisibleChange(false)
-    //   this.fetchTags()
-    // })
+    const { projectInfo } = this.props
+    createTag(projectInfo.id, values).then(() => {
+      message.success('创建成功')
+      this.handleVisibleChange(false)
+      this.fetchTags()
+    })
   }
 
   deleteTag = id => {

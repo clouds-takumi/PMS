@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import { connect } from 'react-redux'
 import { Menu, Dropdown, Avatar, Spin } from 'antd';
-import { DownOutlined, LeftOutlined } from '@ant-design/icons';
+import { DownOutlined, LeftOutlined, Loading3QuartersOutlined } from '@ant-design/icons';
 import s from './style.less'
 import router from 'umi/router';
 import { getUserInfo } from './service';
@@ -60,7 +60,7 @@ class WithAuth extends Component {
               ? children
               : (
                 <div className={s.spin}>
-                  <Spin />
+                  <Spin indicator={<Loading3QuartersOutlined spin />} />
                 </div>
               )
           }
