@@ -1,11 +1,11 @@
 import { Component } from 'react'
 import { connect } from 'react-redux'
 import s from './style.less'
+import cn from 'classnames'
 import { Avatar, Icon, message } from 'antd'
 import Collapse from './components/collapse'
 import CreateIteration from './components/add-iteration'
-import { reqBacklog, reqAllIters, reqIterIssues } from './service'
-
+import { getBacklogIssues, getIteraions, getIterationIssues } from './service'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
 class Backlog extends Component {
@@ -15,6 +15,89 @@ class Backlog extends Component {
     itemId: null,
     iterationExpand: { backlog: true },
     drawerVisible: false
+  }
+
+  renderList = (list, provided, isDragging, style) => {
+    return (
+      <div
+        className={s.list}
+        // onClick={() => this.showDrawer(list)}
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        style={{
+          boxShadow: isDragging && '0 8px 24px 0 rgba(0, 0, 0, 0.15), 0 0 1px 0 rgba(0, 0, 0, 0.05)',
+          borderBottom: isDragging && 'none',
+          ...provided.draggableProps.style,
+          ...style,
+        }}>
+        <div className={s.listTitle}>{list.name}</div>
+        <div className={s.listExtra}>
+          <div className={s.listCode}>
+            <Icon type="filter" theme="twoTone" />&nbsp;#{list.id}
+          </div>
+          <Avatar
+            size='small'
+            icon='user'
+            style={{
+              background: list.bgColor,
+              color: list.color,
+            }}>
+            {list.name}
+          </Avatar>
+        </div>
+      </div>
+    )
+  }
+
+  renderLists = droppableId => {
+    let lists
+    const { issues, iterationExpand } = this.state
+    if (iterationExpand[droppableId]) {
+      lists = issues[droppableId]
+      lists = []
+    } else {
+      lists = []
+    }
+
+    return (
+      <Droppable droppableId={droppableId}>
+        {
+          (droppableProvided) => lists.length !== 0 ? (
+            <div className={s.lists} ref={droppableProvided.innerRef}>
+              {
+                lists.map((list, index) => (
+                  <Draggable draggableId={list.id} index={index} key={list.id}>
+                    {
+                      (draggableProvided, draggableSnapshot) => this.renderList(list, draggableProvided, draggableSnapshot.isDragging)
+                    }
+                  </Draggable>
+                ))
+              }
+              {droppableProvided.placeholder}
+            </div>
+
+          ) :
+            (droppableId !== 'backlog')
+              ? (
+                <div className={s.emptyWrap}>
+                  <div className={s.mainEmpty} ref={droppableProvided.innerRef}>
+                    <span>从Backlog中拖动需求事项到此处进行分类</span>
+                  </div>
+                </div>
+
+              )
+              : (
+                <div className={s.emptyWrap}>
+                  <div className={cn(s.mainEmpty, s.backlogEmpty)} ref={droppableProvided.innerRef}>
+                    <div className={s.emptyTitle}>当前没有待规划的需求事项</div>
+                    <div>创建事项，可以调整事项的顺序，也可以拖动到迭代中进行规划。</div>
+                  </div>
+                </div>
+              )
+        }
+      </Droppable>
+    )
   }
 
   render() {
@@ -47,8 +130,8 @@ class Backlog extends Component {
                       delIterContainer={this.delIterContainer}
                       name={iteration.name}
                       issuesNum={0}
-                      expand={iterationExpand[iteration.id]}
-                      onExpand={() => this.handleExpand(iteration.id)}
+                      expand={true}
+                      // onExpand={() => this.handleExpand(iteration.id)}
                       status={iteration.status}
                       changeStatus={this.handleStatus}
                       startDate={iteration.startDate}
@@ -73,29 +156,32 @@ class Backlog extends Component {
 
   fetchBacklog = () => {
     const { projectInfo } = this.props
-
-    // if (projectInfo.id) {
-    //   reqBacklog(projectInfo.id).then(res => {
-    //     console.log(res)
-    //     // if (data.lists) {
-    //     //   this.setState({ issues: { backlog: data.lists } })
-    //     // }
-    //   })
-    // }
+    if (projectInfo.id) {
+      getBacklogIssues(projectInfo.id).then(({ data }) => {
+        if (data.lists) {
+          this.setState({ issues: { backlog: data.lists } })
+        }
+      })
+    }
   }
 
-  renderLists = () => {
-
+  fetchIterations = () => {
+    const { projectInfo } = this.props
+    getIteraions(projectInfo.id).then(({ data }) => {
+      if (data.lists) {
+        console.log(data.lists)
+        // this.setState({ iterations: data.lists })
+      }
+      // const id = data.lists[0].id
+      // let temp = JSON.parse(JSON.stringify(this.state.iterationExpand))
+      // temp[`${id}`] = true
+      // this.setState({ iterations: data.lists, iterationExpand: temp })
+    })
   }
 
   componentDidMount() {
     this.fetchBacklog()
-    // reqAllIters().then(res => {
-    //   const id = res.lists[0].id
-    //   let temp = JSON.parse(JSON.stringify(this.state.iterationExpand))
-    //   temp[`${id}`] = true
-    //   this.setState({ iterations: res.lists, iterationExpand: temp })
-    // })
+    this.fetchIterations()
   }
 
 }

@@ -13,5 +13,5 @@ export const createIteration = (projectId, data) => request({
 
 export const delIdIteration = (projectId, iterId) => request({
   method: 'delete',
-  url: `/p/${projectId}/iteration/${iterId}`,
+  url: `/p/${projectId}/iteration/${iterId}`
 })

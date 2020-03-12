@@ -1,7 +1,8 @@
 import request from '@/utils/request'
 
-export const getTags = projectId => request({
-    url: `/p/${projectId}/tags`
+export const getTags = (projectId, params) => request({
+    url: `/p/${projectId}/tags`,
+    params
 })
 
 export const createTag = (projectId, data) => request({

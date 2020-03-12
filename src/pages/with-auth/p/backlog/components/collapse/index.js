@@ -3,7 +3,8 @@ import s from './index.less'
 import cn from 'classnames'
 import moment from 'moment'
 import 'moment/locale/zh-cn'
-import { Icon, Tag, Dropdown, Menu, Divider, Tooltip, Modal, Button, DatePicker, message, Input } from 'antd'
+import { Tag, Dropdown, Menu, Divider, Tooltip, Modal, Button, DatePicker, message, Input } from 'antd'
+// import { ArrowRightOutlined } from '@ant-design/icons'
 
 moment.locale('zh-cn')
 const Collapse = ({
@@ -205,7 +206,7 @@ const Collapse = ({
                   defaultValue={moment()}
                   format={'YYYY-MM-DD'}
                   onChange={onStartChange}
-                  suffixIcon={<Icon type='down' />}
+                  // suffixIcon={<Icon type='down' />}
                   className={s.datePick} />
               </div>
               <div className={s.modalMsgTime}>迭代结束时间</div>
@@ -213,7 +214,7 @@ const Collapse = ({
                 <DatePicker
                   placeholder='请选择迭代结束时间'
                   onChange={onEndChange}
-                  suffixIcon={<Icon type='down' />}
+                  // suffixIcon={<Icon type='down' />}
                   className={s.datePick} />
               </div>
               <div className={s.modalBtn}>
@@ -245,7 +246,7 @@ const Collapse = ({
                   defaultValue={moment()}
                   format={'YYYY-MM-DD'}
                   onChange={onCompChange}
-                  suffixIcon={<Icon type='down' />}
+                  // suffixIcon={<Icon type='down' />}
                   className={s.datePick} />
               </div>
               <div className={s.modalBtn}>
@@ -283,7 +284,8 @@ const Collapse = ({
                     defaultValue={status ? moment(timeEditStart) : null}
                     format={'YYYY-MM-DD'}
                     onChange={(date, dateString) => setEditTimeStart(dateString)}
-                    suffixIcon={<Icon type='down' />} />
+                  // suffixIcon={<Icon type='down' />} 
+                  />
                 </div>
                 <div className={s.modalRight}>
                   <div className={s.modalMsgTime}>结束时间</div>
@@ -291,7 +293,8 @@ const Collapse = ({
                     placeholder='请选择迭代结束时间'
                     defaultValue={status ? moment(timeEditEnd) : null}
                     onChange={(date, dateString) => setEditTimeEnd(dateString)}
-                    suffixIcon={<Icon type='down' />} />
+                  // suffixIcon={<Icon type='down' />}
+                  />
                 </div>
               </div>
               <Button
@@ -335,13 +338,14 @@ const Collapse = ({
 
   return (
     <div className={cn(s.collapse, className)}>
+      {/* part1 - header */}
       <div
         className={cn(s.header, type !== 'backlog' && s.headerExpand)}
         onClick={handleExpand}>
         {
           type === 'backlog'
-            ? <Icon type='hdd' className={s.icon} />
-            : <Icon type={expand ? 'down' : 'right'} className={s.icon} />
+            ? <></>
+            : <></>
         }
         <span className={s.name}>{name}</span>
         <span className={s.issuesNum}>{issuesNum}个事项</span>
@@ -350,13 +354,13 @@ const Collapse = ({
           type === 'backlog'
             ? (
               <Tooltip title='未规划进迭代并且未完成的事项'>
-                <Icon type="question-circle" theme='filled' />
+                {/* <Icon type="question-circle" theme='filled' /> */}
               </Tooltip>
             )
             : (
               <div className={s.headerRight}>
                 <Dropdown overlay={dropDownMenu} trigger={['click']}>
-                  <Icon type='ellipsis' onClick={e => e.stopPropagation()} className={s.moreMenu} />
+                  {/* <Icon type='ellipsis' onClick={e => e.stopPropagation()} className={s.moreMenu} /> */}
                 </Dropdown>
                 {status === 1 && (
                   <div className={s.date}>
@@ -371,18 +375,14 @@ const Collapse = ({
             )
         }
       </div>
-      {
-        renderModal('delete')
-      }
+
+      {/* part2 - show data */}
       <div className={s.body}>
-        {/* {(type === 'backlog') && issuesNum === 0 && (
-          <div className={s.mainEmpty}>
-            <span>新建需求事项</span>
-          </div>
-        )} */}
         {(expand || type === 'backlog') && children}
         <div className={s.operate}></div>
       </div>
+
+      {/* part3 - create bar */}
       {
         (expand === true || type === 'backlog') && (
           <>
@@ -393,13 +393,18 @@ const Collapse = ({
                 :
                 <div className={s.addFooter} >
                   <div onClick={changeAddFlag}>
-                    <Icon type='plus' />
-                    <span >新建事项</span>
+                    {/* <Icon type='plus' /> */}
+                    <span >创建事项</span>
                   </div>
                 </div>
             }
           </>
         )
+      }
+
+      {/* part4 - operate modal */}
+      {
+        renderModal('delete')
       }
     </div>
   )

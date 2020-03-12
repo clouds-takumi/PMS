@@ -9,7 +9,7 @@ class Tags extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      tags: [],
+      tags: {},
       loading: false,
       tagName: '',
       tagId: '',
@@ -79,7 +79,7 @@ class Tags extends PureComponent {
         <Table
           className={s.table}
           loading={loading}
-          dataSource={tags}
+          dataSource={tags.lists}
           columns={columns}
           rowKey='id'
           pagination={false} />
@@ -92,15 +92,15 @@ class Tags extends PureComponent {
   fetchTags = () => {
     const { projectInfo } = this.props
 
-    // this.setState({ loading: true })
-    // if (this.projectInfo) {
-    //   reqTags(this.projectInfo.id).then(({ data }) => {
-    //     if (data) {
-    //       this.setState({ loading: false })
-    //       this.setState({ tags: data })
-    //     }
-    //   })
-    // }
+    this.setState({ loading: true })
+    if (projectInfo) {
+      getTags(projectInfo.id).then(({ data }) => {
+        if (data) {
+          this.setState({ loading: false })
+          this.setState({ tags: data })
+        }
+      })
+    }
   }
 
   handleVisibleChange = visible => { this.setState({ visible }) }

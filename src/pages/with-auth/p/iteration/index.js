@@ -11,6 +11,7 @@ import CreateModal from '@/components/create-modal'
 )
 class Iteration extends Component {
   state = {
+    loading: false,
     iterations: {},
     iterName: '',
     id: null,
@@ -84,7 +85,7 @@ class Iteration extends Component {
         name: 'name',
         rules: [
           { required: true, message: '请输入迭代名称' },
-          { max: 20, message: '名称不能大于20个字符'}
+          { max: 20, message: '名称不能大于20个字符' }
         ],
       },
       {
@@ -137,7 +138,7 @@ class Iteration extends Component {
   }
 
   render() {
-    const { columns, iterations, visible, forms, extraForms, delFlag } = this.state
+    const { loading, columns, iterations, visible, forms, extraForms, delFlag } = this.state
     return (
       <div className={s.wrapper}>
         <CreateModal
@@ -152,11 +153,12 @@ class Iteration extends Component {
           <Button type='primary' onClick={() => this.handleVisibleChange(true)}>创建迭代</Button>
         </div>
         <Table
+          loading={loading}
           className={s.table}
           dataSource={iterations.lists}
           columns={columns}
           rowKey='id'
-        // pagination={{ total: iterations.total, pageSize: iterations.pageSize, hideOnSinglePage: true, onChange: this.handlePageChange }}
+        // pagination={{ total: iterations.total, pageSize: 8, hideOnSinglePage: true, onChange: this.handlePageChange }}
         />
         {
           delFlag && this.renderDelModal()
@@ -169,11 +171,13 @@ class Iteration extends Component {
 
   fetchIterations = page => {
     const { projectInfo } = this.props
+    this.setState({ loading: true })
 
     if (projectInfo.id) {
       getIterations(projectInfo.id, { page }).then(({ data }) => {
         if (data) {
           this.setState({ iterations: data })
+          this.setState({ loading: false })
         }
       })
     }
@@ -201,7 +205,7 @@ class Iteration extends Component {
 
     createIteration(projectInfo.id, values).then(() => {
       message.success('创建成功')
-      this.hanldeVisibleChange(false)
+      this.handleVisibleChange(false)
       this.fetchIterations()
     })
   }
