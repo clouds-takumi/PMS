@@ -9,7 +9,8 @@ import {
   UnorderedListOutlined,
   DownOutlined,
   RightOutlined,
-  PlusOutlined
+  PlusOutlined,
+  DashOutlined
 } from '@ant-design/icons';
 
 
@@ -349,74 +350,76 @@ const Collapse = ({
   }
 
   return (
-    <div className={cn(s.collapse, className)}>
-      <div
-        className={cn(s.header, type !== 'backlog' && s.headerExpand)}
-        onClick={handleExpand}>
-        {
-          type === 'backlog'
-            ? <UnorderedListOutlined className={s.logIcon} />
-            : renderArrow()
-        }
-        <span className={s.name}>{name}</span>
-        <span className={s.issuesNum}>{issuesNum}个事项</span>
-        <Divider type="vertical" className={s.dvdIcon} />
-        {
-          type === 'backlog'
-            ? (
-              <Tooltip title='未规划进迭代并且未完成的事项'>
-                <QuestionCircleOutlined className={s.tipIcon} />
-              </Tooltip>
-            )
-            : (
-              <div className={s.headerRight}>
-                <Dropdown overlay={dropDownMenu} trigger={['click']}>
-                  {/* <Icon type='ellipsis' onClick={e => e.stopPropagation()} className={s.moreMenu} /> */}
-                </Dropdown>
-                {status === 1 && (
-                  <div className={s.date}>
-                    {startDate} - {endDate}
-                  </div>
-                )
-                }
-                <Tag color={status ? 'orange' : 'blue'}>
-                  {status ? '进行中' : '未开始'}
-                </Tag>
-              </div>
-            )
-        }
-      </div>
-
-      {/* part2 - show data */}
-      <div className={s.body}>
-        {(expand || type === 'backlog') && children}
-        {/* <div className={s.operate}></div> */}
-      </div>
-
-      {/* part3 - create bar */}
-      {
-        (expand === true || type === 'backlog') && (
-          <>
-            {
-              addFlag
-                ?
-                renderAddMenu()
-                :
-                <div className={s.addFooter} >
-                  <div onClick={changeAddFlag}>
-                    <PlusOutlined className={s.addIcon} />
-                    <span className={s.createtitle}>创建事项</span>
-                  </div>
+    <div className={s.colRoot}>
+      <div className={cn(s.collapse, className)}>
+        <div
+          className={cn(s.header, type !== 'backlog' && s.headerExpand)}
+          onClick={handleExpand}>
+          {
+            type === 'backlog'
+              ? <UnorderedListOutlined className={s.logIcon} />
+              : renderArrow()
+          }
+          <span className={s.name}>{name}</span>
+          <span className={s.issuesNum}>{issuesNum}个事项</span>
+          <Divider type="vertical" className={s.dvdIcon} />
+          {
+            type === 'backlog'
+              ? (
+                <Tooltip title='未规划进迭代并且未完成的事项'>
+                  <QuestionCircleOutlined className={s.tipIcon} />
+                </Tooltip>
+              )
+              : (
+                <div className={s.headerRight}>
+                  <Dropdown overlay={dropDownMenu} trigger={['click']}>
+                    <DashOutlined onClick={e => e.stopPropagation()} className={s.moreMenu} />
+                  </Dropdown>
+                  {status === 1 && (
+                    <div className={s.date}>
+                      {startDate} - {endDate}
+                    </div>
+                  )
+                  }
+                  <Tag color={status ? 'orange' : 'blue'}>
+                    {status ? '进行中' : '未开始'}
+                  </Tag>
                 </div>
-            }
-          </>
-        )
-      }
+              )
+          }
+        </div>
 
-      {/* part4 - operate modal */}
-      {
-        renderModal('delete')
-      }
+        {/* part2 - show data */}
+        <div className={s.body}>
+          {(expand || type === 'backlog') && children}
+          {/* <div className={s.operate}></div> */}
+        </div>
+
+        {/* part3 - create bar */}
+        {
+          (expand === true || type === 'backlog') && (
+            <>
+              {
+                addFlag
+                  ?
+                  renderAddMenu()
+                  :
+                  <div className={s.addFooter} >
+                    <div onClick={changeAddFlag}>
+                      <PlusOutlined className={s.addIcon} />
+                      <span className={s.createtitle}>创建事项</span>
+                    </div>
+                  </div>
+              }
+            </>
+          )
+        }
+
+        {/* part4 - operate modal */}
+        {
+          renderModal('delete')
+        }
+      </div>
     </div>
   )
 }

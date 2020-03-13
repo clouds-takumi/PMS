@@ -2,19 +2,44 @@ import { Component } from 'react'
 import { connect } from 'react-redux'
 import s from './style.less'
 import cn from 'classnames'
-import { Avatar, Icon, message } from 'antd'
+import { Avatar, Icon, message, Tooltip } from 'antd'
 import Collapse from './components/collapse'
 import CreateIteration from './components/add-iteration'
 import { getBacklogIssues, getIteraions, getIterationIssues } from './service'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import {
+  FlagTwoTone,
+  UserOutlined,
+  UpCircleTwoTone,
+  MinusCircleTwoTone,
+  DownCircleTwoTone,
+
+} from '@ant-design/icons'
 
 class Backlog extends Component {
   state = {
     issues: { backlog: [] },
-    iterations: [],
+    iterations: [{ id: 1, name: 'xxx' }, { id: 2, name: 'xxxxx' }],
     itemId: null,
     iterationExpand: { backlog: true },
     drawerVisible: false
+  }
+
+  renderPriIcon = priority => {
+    let icon
+    switch (priority) {
+      case 1:
+        icon = <UpCircleTwoTone />
+        break
+      case 2:
+        icon = <MinusCircleTwoTone />
+        break
+      case 3:
+        icon = <DownCircleTwoTone />
+        break
+      default:
+    }
+    return icon
   }
 
   renderList = (list, provided, isDragging, style) => {
@@ -34,19 +59,19 @@ class Backlog extends Component {
         <div className={s.listTitle}>{list.name}</div>
         <div className={s.listExtra}>
           <div className={s.listCode}>
-            <Icon type="filter" theme="twoTone" />&nbsp;#{list.id}
+            <FlagTwoTone />&nbsp;#{list.id}
           </div>
-          <Avatar
-            size='small'
-            icon='user'
-            style={{
-              background: list.bgColor,
-              color: list.color,
-            }}>
-            {list.name}
-          </Avatar>
+          <div className={s.lsRight}>
+            <div className={s.prior}>{this.renderPriIcon(list.priority)}</div>
+            {
+              list.assignee
+                ?
+                <Tooltip title={list.assignee.name}><Avatar src={list.assignee.avatar} className={s.userIcon} /></Tooltip>
+                : <Avatar icon={<UserOutlined />} className={s.userIcon} />
+            }
+          </div>
         </div>
-      </div>
+      </div >
     )
   }
 
@@ -54,8 +79,11 @@ class Backlog extends Component {
     let lists
     const { issues, iterationExpand } = this.state
     if (iterationExpand[droppableId]) {
-      lists = issues[droppableId]
-      lists = []
+      if (issues[droppableId]) {
+        lists = issues[droppableId]
+      } else {
+        lists = []
+      }
     } else {
       lists = []
     }
@@ -130,8 +158,8 @@ class Backlog extends Component {
                       delIterContainer={this.delIterContainer}
                       name={iteration.name}
                       issuesNum={0}
-                      expand={true}
-                      // onExpand={() => this.handleExpand(iteration.id)}
+                      expand={iterationExpand[iteration.id]}
+                      onExpand={() => this.handleExpand(iteration.id)}
                       // status={iteration.status}
                       // changeStatus={this.handleStatus}
                       // startDate={iteration.startDate}
@@ -170,12 +198,13 @@ class Backlog extends Component {
     if (projectInfo.id) {
       getIteraions(projectInfo.id).then(({ data }) => {
         if (data.lists) {
+          this.setState({ iterations: data.lists })
           console.log(data.lists)
-          // this.setState({ iterations: data.lists })
           // const id = data.lists[0].id
-          // let temp = JSON.parse(JSON.stringify(this.state.iterationExpand))
-          // temp[`${id}`] = true
-          // this.setState({ iterations: data.lists, iterationExpand: temp })
+          const id = this.state.iterations[0].id
+          let temp = JSON.parse(JSON.stringify(this.state.iterationExpand))
+          temp[`${id}`] = true
+          this.setState({ iterationExpand: temp })
         }
       })
     }
@@ -184,6 +213,15 @@ class Backlog extends Component {
   componentDidMount() {
     this.fetchBacklog()
     this.fetchIterations()
+  }
+
+  handleExpand = id => {
+    const { iterationExpand, issues } = this.state
+    // if (!iterationExpand.hasOwnProperty(id)) {
+    //   this.fetchCurIterData(id)
+    // }
+    iterationExpand[id] = !iterationExpand[id]
+    this.setState({ iterationExpand })
   }
 
 }
