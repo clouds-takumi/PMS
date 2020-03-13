@@ -132,10 +132,10 @@ class Backlog extends Component {
                       issuesNum={0}
                       expand={true}
                       // onExpand={() => this.handleExpand(iteration.id)}
-                      status={iteration.status}
-                      changeStatus={this.handleStatus}
-                      startDate={iteration.startDate}
-                      endDate={iteration.endDate}
+                      // status={iteration.status}
+                      // changeStatus={this.handleStatus}
+                      // startDate={iteration.startDate}
+                      // endDate={iteration.endDate}
                       handleAdd={this.handleAdd}>
                       <div className={s.iterationsBox}>
                         {this.renderLists(iteration.id)}
@@ -167,16 +167,18 @@ class Backlog extends Component {
 
   fetchIterations = () => {
     const { projectInfo } = this.props
-    getIteraions(projectInfo.id).then(({ data }) => {
-      if (data.lists) {
-        console.log(data.lists)
-        // this.setState({ iterations: data.lists })
-      }
-      // const id = data.lists[0].id
-      // let temp = JSON.parse(JSON.stringify(this.state.iterationExpand))
-      // temp[`${id}`] = true
-      // this.setState({ iterations: data.lists, iterationExpand: temp })
-    })
+    if (projectInfo.id) {
+      getIteraions(projectInfo.id).then(({ data }) => {
+        if (data.lists) {
+          console.log(data.lists)
+          // this.setState({ iterations: data.lists })
+          // const id = data.lists[0].id
+          // let temp = JSON.parse(JSON.stringify(this.state.iterationExpand))
+          // temp[`${id}`] = true
+          // this.setState({ iterations: data.lists, iterationExpand: temp })
+        }
+      })
+    }
   }
 
   componentDidMount() {

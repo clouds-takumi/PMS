@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { Input, message } from 'antd'
 import s from './style.less'
+import {
+    PlusSquareOutlined
+} from '@ant-design/icons'
+
 
 const CreateIteration = ({ handleAddIter, emptyFlag }) => {
     const [flag, setFlag] = useState(true)
@@ -31,7 +35,7 @@ const CreateIteration = ({ handleAddIter, emptyFlag }) => {
 
     const handleItemAdd = () => {
         if (!!value) {
-            handleAddIter({ title:value, expand: true })
+            handleAddIter({ title: value, expand: true })
             setValue('')
             message.success('创建迭代成功')
         }
@@ -58,7 +62,7 @@ const CreateIteration = ({ handleAddIter, emptyFlag }) => {
                 flag
                     ? (
                         <div className={s.addcontainer} onClick={changeFlag}>
-                            <span className={s.btn}>+ 创建迭代 +</span>
+                            <span className={s.btn}><PlusSquareOutlined className={s.createIcon}/>创建迭代</span>
                         </div>
                     )
                     : (

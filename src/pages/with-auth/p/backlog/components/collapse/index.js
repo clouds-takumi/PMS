@@ -1,10 +1,17 @@
 import { useState } from 'react'
-import s from './index.less'
+import s from './style.less'
 import cn from 'classnames'
 import moment from 'moment'
 import 'moment/locale/zh-cn'
 import { Tag, Dropdown, Menu, Divider, Tooltip, Modal, Button, DatePicker, message, Input } from 'antd'
-// import { ArrowRightOutlined } from '@ant-design/icons'
+import {
+  QuestionCircleOutlined,
+  UnorderedListOutlined,
+  DownOutlined,
+  RightOutlined,
+  PlusOutlined
+} from '@ant-design/icons';
+
 
 moment.locale('zh-cn')
 const Collapse = ({
@@ -45,7 +52,7 @@ const Collapse = ({
   }
 
   let curponiter = addValueFlag ? 'pointer' : 'not-allowed'
-  let curcolor = addValueFlag ? '#4682B4' : '#bcc0c5'
+  let curcolor = addValueFlag ? '#2d3e59' : '#bcc0c5'
   const cur = { cursor: curponiter, backgroundColor: curcolor, color: "white" }
 
   const handleInput = (e) => {
@@ -81,31 +88,33 @@ const Collapse = ({
   }
 
   const dropDownMenu = (
-    <Menu>
-      {
-        status
-          ? <Menu.Item key='0' onClick={(eve) => {
-            eve.domEvent.stopPropagation()
-            setModalFlag(2)
-          }}>完成迭代</Menu.Item>
-          : <Menu.Item key='0' onClick={(eve) => {
-            eve.domEvent.stopPropagation()
-            if (!status) {
-              setModalFlag(0)
-            }
-          }} style={status ? { cursor: " not-allowed" } : null}>开始迭代</Menu.Item>
-      }
-      <Menu.Divider />
-      <Menu.Item key='2' onClick={(eve) => {
-        eve.domEvent.stopPropagation()
-        setModalFlag(3)
-      }}>编辑迭代</Menu.Item>
-      <Menu.Divider />
-      <Menu.Item key='3' onClick={eve => {
-        eve.domEvent.stopPropagation()
-        setModalFlag(1)
-      }} style={{ color: 'red' }}>删除迭代</Menu.Item>
-    </Menu >
+    <>
+      <Menu>
+        {
+          status
+            ? <Menu.Item key='0' onClick={(eve) => {
+              eve.domEvent.stopPropagation()
+              setModalFlag(2)
+            }}>完成迭代</Menu.Item>
+            : <Menu.Item key='0' onClick={(eve) => {
+              eve.domEvent.stopPropagation()
+              if (!status) {
+                setModalFlag(0)
+              }
+            }} style={status ? { cursor: " not-allowed" } : null}>开始迭代</Menu.Item>
+        }
+        <Menu.Divider />
+        <Menu.Item key='2' onClick={(eve) => {
+          eve.domEvent.stopPropagation()
+          setModalFlag(3)
+        }}>编辑迭代</Menu.Item>
+        <Menu.Divider />
+        <Menu.Item key='3' onClick={eve => {
+          eve.domEvent.stopPropagation()
+          setModalFlag(1)
+        }} style={{ color: 'red' }}>删除迭代</Menu.Item>
+      </Menu >
+    </>
   )
 
   const hanldeStart = (eve) => {
@@ -117,7 +126,6 @@ const Collapse = ({
     } else {
       changeStatus(iterContainerId, 1)
       const data = { timeStart, timeEnd, status: 1 }
-      // TODO: 更新迭代对象起始时间接口，头部时间信息为datepick的value
       setModalFlag(null)
       message.info({ content: `${iterContainerId}已经开始`, key: 'dex' })
     }
@@ -129,7 +137,6 @@ const Collapse = ({
       message.info({ content: '请确认迭代完成时间', key: 'pex' })
     } else {
       const data = { timeComp }
-      // TODO: 更新迭代容器，此处不应该用这个删除方法的接口
       delIterContainer(iterContainerId)
       setModalFlag(null)
     }
@@ -321,7 +328,8 @@ const Collapse = ({
     return (
       <div className={s.addRoot}>
         <div className={s.addItemContainer}>
-          <span className={s.addMenu}>add</span>
+          <span className={s.addMenu}>需求</span>
+          <Divider type='vertical' className={s.dvdIcon} />
           <input
             placeholder="输入事件标题，可按回车创建"
             onChange={handleInput}
@@ -329,32 +337,35 @@ const Collapse = ({
             onKeyUp={handleEnterAdd}
             className={s.addItemInput}
           />
-          <div className={s.btn} style={cur} onClick={handleBtnAdd}>创建</div>
-          <div className={s.btn} onClick={() => handleCancel()} >取消</div>
+          <div className={s.btnadd} style={cur} onClick={handleBtnAdd}>创建</div>
+          <div className={s.btnadd} onClick={() => handleCancel()} >取消</div>
         </div>
       </div>
     )
   }
 
+  const renderArrow = () => {
+    return expand ? <DownOutlined className={s.arrowIcon} /> : <RightOutlined className={s.arrowIcon} />
+  }
+
   return (
     <div className={cn(s.collapse, className)}>
-      {/* part1 - header */}
       <div
         className={cn(s.header, type !== 'backlog' && s.headerExpand)}
         onClick={handleExpand}>
         {
           type === 'backlog'
-            ? <></>
-            : <></>
+            ? <UnorderedListOutlined className={s.logIcon} />
+            : renderArrow()
         }
         <span className={s.name}>{name}</span>
         <span className={s.issuesNum}>{issuesNum}个事项</span>
-        <Divider type="vertical" />
+        <Divider type="vertical" className={s.dvdIcon} />
         {
           type === 'backlog'
             ? (
               <Tooltip title='未规划进迭代并且未完成的事项'>
-                {/* <Icon type="question-circle" theme='filled' /> */}
+                <QuestionCircleOutlined className={s.tipIcon} />
               </Tooltip>
             )
             : (
@@ -379,7 +390,7 @@ const Collapse = ({
       {/* part2 - show data */}
       <div className={s.body}>
         {(expand || type === 'backlog') && children}
-        <div className={s.operate}></div>
+        {/* <div className={s.operate}></div> */}
       </div>
 
       {/* part3 - create bar */}
@@ -393,8 +404,8 @@ const Collapse = ({
                 :
                 <div className={s.addFooter} >
                   <div onClick={changeAddFlag}>
-                    {/* <Icon type='plus' /> */}
-                    <span >创建事项</span>
+                    <PlusOutlined className={s.addIcon} />
+                    <span className={s.createtitle}>创建事项</span>
                   </div>
                 </div>
             }

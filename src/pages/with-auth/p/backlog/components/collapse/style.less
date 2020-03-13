@@ -1,8 +1,7 @@
 .collapse {
   margin: 10px 10px 0 10px;
-  border-radius: 5px;
   background: #f4f5f7;
-  // overflow: hidden;
+  border-radius: 5px;
 }
 
 .header {
@@ -10,10 +9,13 @@
   align-items: center;
   line-height: 45px;
   padding-left: 9px;
-  background-color: rgb(235, 240, 245);
+  background-color: #f4f5f7;
   position: sticky;
   top: 0px;
   z-index: 21;
+  align-items: center;
+  cursor: pointer;
+  border-radius: 5px;
 }
 
 .headerRight {
@@ -64,6 +66,7 @@
 .name {
   color: #202d40;
   margin-right: 10px;
+  font-weight: 700;
 }
 
 .issuesNum {
@@ -76,7 +79,7 @@
 }
 
 .addFooter {
-  background-color: rgb(235, 240, 245);
+  background-color: #f4f5f7;
   display: flex;
   align-items: center;
   padding-left: 9px;
@@ -87,6 +90,7 @@
   position: sticky;
   top: 0px;
   z-index: 19;
+  border-radius: 5px;
 }
 
 .addFooter:hover {
@@ -101,28 +105,57 @@
 }
 
 .addItemContainer {
+  height: 34px;
   display: flex;
   align-items: center;
   width: 100%;
-  height: 24px;
-  background: #f4f5f7;
+  background-color: #ffffff;
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  border-bottom-left-radius: 3px;
+  border-bottom-right-radius: 3px;
 }
 
 .addMenu {
-  margin-right: 8px;
+  margin-left: 10px;
+  width: 60px;
+  font-size: 13px;
+  font-weight: 500;
+  color: gray;
 }
 
 .btn {
+  margin-left: 12px;
   box-shadow: none;
   width: 56px;
   height: 24px;
-  text-align: center;
-  background-color: rgb(241, 237, 237);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
   cursor: pointer;
-  margin-left: 8px;
   border-radius: 3px;
   font-size: 12px;
-  line-height: 24px;
+}
+
+.btnadd {
+  margin-left: 12px;
+  margin-right: 6px;
+  box-shadow: none;
+  width: 80px;
+  height: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #ffffff;
+  cursor: pointer;
+  border-radius: 3px;
+  font-size: 12px;
+  box-shadow: 0 0 0 1px rgba(32, 45, 64, 0.12), 0 0 1px 0 rgba(0, 0, 0, 0.01);
+}
+
+.btnadd:hover {
+  box-shadow: 0 0 0 1px rgba(32, 45, 64, 0.12), 0 0 1px 0 rgba(0, 0, 0, 0.1);
 }
 
 .addItemInput {
@@ -252,4 +285,37 @@
 .datePick {
   width: 100%;
   cursor: pointer;
+}
+
+.tipIcon {
+  cursor: pointer;
+  font-size: 12px;
+  opacity: 0.6;
+}
+.tipIcon:hover {
+  opacity: 1;
+}
+
+.logIcon {
+  margin-right: 8px;
+  opacity: 0.8;
+  font-size: 12px;
+}
+
+.arrowIcon {
+  margin-right: 8px;
+  font-size: 9px;
+}
+
+.dvdIcon {
+  background-color: #b0c4de;
+}
+
+.addIcon {
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+.createtitle {
+  font-size: 13px;
 }
