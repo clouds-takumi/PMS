@@ -13,7 +13,8 @@ class FormGroup extends Component {
     btnStyle: PropTypes.object,
     forms: PropTypes.array.isRequired,
     extraForms: PropTypes.array,
-    onFinish: PropTypes.func
+    onFinish: PropTypes.func,
+    initialValues: PropTypes.object,
   }
 
   static defaultProps = {
@@ -25,13 +26,14 @@ class FormGroup extends Component {
   formRef = React.createRef()
 
   render() {
-    const { layout, btnText, btnStyle, forms, extraForms } = this.props
+    const { layout, btnText, btnStyle, forms, extraForms, initialValues } = this.props
 
     return (
       <Form
         ref={this.formRef}
         layout={layout}
-        onFinish={this.handleFinish}>
+        onFinish={this.handleFinish}
+        initialValues={initialValues}>
         <div className={s.wrapper}>
           <div className={s.left}>
             {
@@ -67,7 +69,11 @@ class FormGroup extends Component {
     }
 
     if (type === 'editor') {
-      ele = <BraftEditor placeholder={placeholder} className={s.editor} />
+      ele = (
+        <BraftEditor
+          placeholder={placeholder}
+          className={s.editor} />
+      )
     }
 
     if (type === 'select') {
@@ -79,7 +85,8 @@ class FormGroup extends Component {
     }
 
     if (type === 'color') {
-      const initialColor = initialValue.color || '#5e72e4'
+      const { initialValues } = this.props
+      const initialColor = (initialValues && initialValues[name]) || '#5e72e4'
       ele = <InputColor initialHexColor={initialColor} placement="right" />
     }
 
@@ -95,27 +102,10 @@ class FormGroup extends Component {
   }
 
   handleFinish = values => {
-    const { desc, startDate, endDate, color, ...restValues } = values
     const { onFinish } = this.props
 
-    if (desc) {
-      restValues.desc = desc.toHTML()
-    }
-
-    if (startDate) {
-      restValues.startDate = startDate.format('YYYY-MM-DD')
-    }
-
-    if (endDate) {
-      restValues.endDate = endDate.format('YYYY-MM-DD')
-    }
-
-    if (color) {
-      restValues.color = color.hex
-    }
-
     if (typeof onFinish === 'function') {
-      onFinish(restValues)
+      onFinish(values)
     }
   }
 }

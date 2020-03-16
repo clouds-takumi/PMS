@@ -15,3 +15,9 @@ export const delIdIteration = (projectId, iterId) => request({
   method: 'delete',
   url: `/p/${projectId}/iteration/${iterId}`
 })
+
+export const editIteration = (projectId, iterationId, data) => request({
+  method: 'put',
+  url: `/p/${projectId}/iteration/${iterationId}`,
+  data,
+})

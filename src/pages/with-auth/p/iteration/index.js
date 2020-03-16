@@ -1,11 +1,27 @@
 import { Component } from 'react'
-import { getIterations, createIteration, delIdIteration } from './service'
+import { getIterations, createIteration, delIdIteration, editIteration } from './service'
 import { connect } from 'react-redux'
 import { Table, Button, message, Divider, Modal } from 'antd'
 import s from './style.less'
 import moment from 'moment'
 import CreateModal from '@/components/create-modal'
 import SideSlip from '@/components/side-slip'
+import { dataFormat } from '@/utils'
+
+const dataFormatRules = [
+  {
+    key: 'desc',
+    type: 'html',
+  },
+  {
+    key: 'startDate',
+    type: 'moment',
+  },
+  {
+    key: 'endDate',
+    type: 'moment',
+  }
+]
 
 @connect(
   store => ({ projectInfo: store.projectInfo })
@@ -72,7 +88,7 @@ class Iteration extends Component {
         render: iteration => {
           return (
             <>
-              <span className={s.operateEdit} >编辑</span>
+              <span className={s.operateEdit} onClick={() => this.handleEdit(iteration)}>编辑</span>
               <Divider type='vertical' />
               <span className={s.operatDel} onClick={() => this.showDeleteModal(iteration)}>删除</span>
             </>
@@ -114,12 +130,14 @@ class Iteration extends Component {
         ],
       },
     ],
+    initialValues: null,
   }
 
   renderDelModal = () => {
-    const { iterName } = this.state
+    const { iterName, initialValues } = this.state
     return (
       <Modal
+        initialValues={initialValues}
         title={null}
         visible
         closable={false}
@@ -140,19 +158,32 @@ class Iteration extends Component {
   }
 
   render() {
-    const { loading, columns, iterations, visible, forms, extraForms, delFlag, sideSlipVisible } = this.state
+    const {
+      loading,
+      columns,
+      iterations,
+      visible,
+      forms,
+      extraForms,
+      delFlag,
+      sideSlipVisible,
+      initialValues
+    } = this.state
+
     return (
       <div className={s.wrapper}>
         <CreateModal
+          initialValues={initialValues}
           width={935}
           visible={visible}
-          title='新建迭代'
-          onCancel={() => this.handleVisibleChange(false)}
+          title={initialValues ? '编辑迭代' : '创建迭代'}
+          onCancel={this.handleCloseModal}
           forms={forms}
           extraForms={extraForms}
-          onFinish={this.onFinish} />
+          onFinish={this.onFinish}
+          btnText={initialValues ? '编辑' : '创建'} />
         <div className={s.operations}>
-          <Button type='primary' onClick={() => this.handleVisibleChange(true)}>创建迭代</Button>
+          <Button type='primary' onClick={this.handleOpenModal}>创建迭代</Button>
         </div>
         <SideSlip
           visible={sideSlipVisible}
@@ -173,6 +204,27 @@ class Iteration extends Component {
   }
 
   componentDidMount() { this.fetchIterations() }
+
+  handleEdit = (iteration) => {
+    this.setState({
+      initialValues: dataFormat(iteration, dataFormatRules, true),
+      visible: true,
+    })
+  }
+
+  handleOpenModal = () => {
+    this.setState({
+      initialValues: null,
+      visible: true,
+    })
+  }
+
+  handleCloseModal = () => {
+    this.setState({
+      initialValues: null,
+      visible: false,
+    })
+  }
 
   handleSideSlipVisible = visible => {
     this.setState({
@@ -213,10 +265,20 @@ class Iteration extends Component {
 
   onFinish = values => {
     const { projectInfo } = this.props
+    const { initialValues } = this.state
 
-    createIteration(projectInfo.id, values).then(() => {
+    if (initialValues) {
+      editIteration(projectInfo.id, initialValues.id, dataFormat(values, dataFormatRules)).then(() => {
+        message.success('更新成功')
+        this.handleCloseModal()
+        this.fetchIterations()
+      })
+      return
+    }
+
+    createIteration(projectInfo.id, dataFormat(values, dataFormatRules)).then(() => {
       message.success('创建成功')
-      this.handleVisibleChange(false)
+      this.handleCloseModal()
       this.fetchIterations()
     })
   }
