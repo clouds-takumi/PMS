@@ -5,6 +5,7 @@ import { Table, Button, message, Divider, Popconfirm } from 'antd'
 import s from './style.less'
 import CreateModal from '@/components/create-modal'
 import moment from 'moment'
+import { UpCircleFilled, MinusCircleFilled, DownCircleFilled } from '@ant-design/icons'
 
 const priorityMap = [
   { id: 1, name: '紧急' },
@@ -126,6 +127,12 @@ class Issue extends Component {
           label: '优先级',
           name: 'priority',
           data: priorityMap,
+          placeholder: '请选择优先等级',
+          options: [
+            { value: 3, name: <div><UpCircleFilled style={{color: 'red'}} /> 高 </div>},
+            { value: 2, name: <div><MinusCircleFilled style={{color: 'orange'}} /> 中 </div> },
+            { value: 1, name: <div><DownCircleFilled style={{color: 'green'}} /> 低 </div> },
+          ],
           rules: [{ required: true, message: '请选择优先等级' }]
         },
         {

@@ -55,7 +55,7 @@ class FormGroup extends Component {
     )
   }
 
-  renderForm = ({ type, name, placeholder, label, rules, size, initialValue, data }) => {
+  renderForm = ({ type, name, placeholder, label, rules, size, initialValue, options = [] }) => {
     let ele = <Input size={size} placeholder={placeholder} />
 
     if (type === 'password') {
@@ -70,22 +70,17 @@ class FormGroup extends Component {
       ele = <BraftEditor placeholder={placeholder} className={s.editor} />
     }
 
+    if (type === 'select') {
+      ele = <Select placeholder={placeholder}>
+        {
+          options.map(option => <Select.Option key={option.value} value={option.value}>{option.name}</Select.Option>)
+        }
+      </Select>
+    }
+
     if (type === 'color') {
       const initialColor = initialValue.color || '#5e72e4'
       ele = <InputColor initialHexColor={initialColor} placement="right" />
-    }
-
-    if (type === 'select') {
-      console.log(data)
-      ele = (
-        <Select placeholder='未指定' allowClear>
-          {
-            data.map(item => (
-              <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
-            ))
-          }
-        </Select>
-      )
     }
 
     return (
