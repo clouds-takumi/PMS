@@ -25,7 +25,7 @@ class FormGroup extends Component {
   formRef = React.createRef()
 
   render() {
-    const { layout, btnText, btnStyle, forms, extraForms } = this.props
+    const { layout, btnText, btnStyle, forms, extraForms, extraData } = this.props
 
     return (
       <Form
@@ -45,7 +45,7 @@ class FormGroup extends Component {
             !!extraForms.length && (
               <div className={s.right}>
                 {
-                  extraForms.map(form => this.renderForm(form))
+                  extraForms.map(form => this.renderForm(form, extraData))
                 }
               </div>
             )
@@ -55,7 +55,7 @@ class FormGroup extends Component {
     )
   }
 
-  renderForm = ({ type, name, placeholder, label, rules, size, initialValue, data }) => {
+  renderForm = ({ type, name, placeholder, label, rules, size, initialValue, data }, extraData) => {
     let ele = <Input size={size} placeholder={placeholder} />
 
     if (type === 'password') {
@@ -76,7 +76,6 @@ class FormGroup extends Component {
     }
 
     if (type === 'select') {
-      console.log(data)
       ele = (
         <Select placeholder='未指定' allowClear>
           {
@@ -86,6 +85,21 @@ class FormGroup extends Component {
           }
         </Select>
       )
+    }
+
+    if (type === 'iteration') {
+      console.log(extraData)
+      if (extraData) {
+        ele = (
+          <Select placeholder='未规划' allowClear>
+            {
+              extraData.map(item => (
+                <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
+              ))
+            }
+          </Select>
+        )
+      }
     }
 
     return (

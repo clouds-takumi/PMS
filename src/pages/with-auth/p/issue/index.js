@@ -16,8 +16,8 @@ class Issue extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      projectId: null,
       issues: {},
+      iterations: [],
       loading: false,
       columns: [
         {
@@ -139,19 +139,16 @@ class Issue extends Component {
           name: 'deadline',
         },
         {
-          type: 'select',
+          type: 'iteration',
           label: '所属迭代',
-          name: 'iterationId',
-          data: (() => {
-            return []
-          })()
+          name: 'iterationId'
         }
       ],
     }
   }
 
   render() {
-    const { loading, columns, issues, visible, forms, extraForms } = this.state
+    const { loading, columns, issues, iterations, visible, forms, extraForms } = this.state
 
     return (
       <div className={s.wrapper}>
@@ -162,6 +159,7 @@ class Issue extends Component {
           onCancel={() => this.hanldeVisibleChange(false)}
           forms={forms}
           extraForms={extraForms}
+          extraData={iterations}
           onFinish={this.onFinish} />
         <div className={s.operations}>
           <Button type='primary' onClick={() => this.hanldeVisibleChange(true)}>创建事项</Button>
@@ -177,22 +175,15 @@ class Issue extends Component {
     )
   }
 
-  getIterations = () => {
-    const { projectInfo } = this.props
-    getIterations(projectInfo).then(({ data }) => {
-      if (data) {
-        return data.lists
-      } else {
-        return []
-      }
-    })
-  }
-
   componentDidMount() {
     this.fetchIssues()
     const { projectInfo } = this.props
-    if (projectInfo.id) {
-      this.setState({ projectId: projectInfo.id })
+    if (projectInfo) {
+      getIterations(projectInfo.id).then(({ data }) => {
+        if (data) {
+          this.setState({ iterations: data.lists })
+        }
+      })
     }
   }
 

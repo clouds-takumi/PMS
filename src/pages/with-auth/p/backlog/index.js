@@ -199,8 +199,6 @@ class Backlog extends Component {
       getIteraions(projectInfo.id).then(({ data }) => {
         if (data.lists) {
           this.setState({ iterations: data.lists })
-          console.log(data.lists)
-          // const id = data.lists[0].id
           const id = this.state.iterations[0].id
           let temp = JSON.parse(JSON.stringify(this.state.iterationExpand))
           temp[`${id}`] = true

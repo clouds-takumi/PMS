@@ -15,7 +15,7 @@ class CreateModal extends Component {
   }
 
   render() {
-    const { width, visible, title, onCancel, forms, extraForms, onFinish } = this.props
+    const { width, visible, title, onCancel, forms, extraForms, onFinish, extraData } = this.props
 
     return (
       <Modal
@@ -27,6 +27,7 @@ class CreateModal extends Component {
         onCancel={onCancel}
         bodyStyle={{ padding: 0 }}>
         <FormGroup
+          extraData={extraData}
           forms={forms}
           extraForms={extraForms}
           onFinish={onFinish} />

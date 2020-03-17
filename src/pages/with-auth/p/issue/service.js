@@ -16,7 +16,7 @@ export const deleteCurIssue = (projectId, id) => request({
   url: `/p/${projectId}/issue/${id}`
 })
 
-export const getIterations = (projectId, params) => request({
+export const getIterations = projectId => request({
   url: `/p/${projectId}/iterations`,
-  params,
+  params: { pageSize: 9999999 },
 })
