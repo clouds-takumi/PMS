@@ -205,7 +205,7 @@ class Iteration extends Component {
 
   componentDidMount() { this.fetchIterations() }
 
-  handleEdit = (iteration) => {
+  handleEdit = iteration => {
     this.setState({
       initialValues: dataFormat(iteration, dataFormatRules, true),
       visible: true,

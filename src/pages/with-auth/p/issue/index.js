@@ -6,11 +6,14 @@ import s from './style.less'
 import CreateModal from '@/components/create-modal'
 import moment from 'moment'
 import { UpCircleFilled, MinusCircleFilled, DownCircleFilled } from '@ant-design/icons'
+import SideSlip from '@/components/side-slip'
+import { dataFormat } from '@/utils'
+
 
 const priorityMap = [
-  { id: 1, name: '紧急' },
-  { id: 2, name: '优先' },
-  { id: 3, name: '一般' },
+  { id: 1, name: '高' },
+  { id: 2, name: '中' },
+  { id: 3, name: '低' },
 ]
 
 class Issue extends Component {
@@ -20,12 +23,14 @@ class Issue extends Component {
       issues: {},
       iterations: [],
       loading: false,
+      sideSlipVisible: false,
       columns: [
         {
           title: '事项名称',
           dataIndex: 'name',
           key: 'name',
-          width: 120
+          width: 120,
+          render: dataIndex => <div className={s.issueName} onClick={() => this.handleSideSlipVisible(true)} >{dataIndex}</div>
         },
         {
           title: '负责人',
@@ -90,7 +95,7 @@ class Issue extends Component {
           render: issue => {
             return (
               <>
-                <span className={s.operateEdit} onClick={() => this.issueEdit(issue)}>编辑</span>
+                <span className={s.operateEdit} onClick={() => this.handleEdit(issue)}>编辑</span>
                 <Divider type='vertical' />
                 <Popconfirm
                   title='确认删除?'
@@ -129,9 +134,9 @@ class Issue extends Component {
           data: priorityMap,
           placeholder: '请选择优先等级',
           options: [
-            { value: 3, name: <div><UpCircleFilled style={{color: 'red'}} /> 高 </div>},
-            { value: 2, name: <div><MinusCircleFilled style={{color: 'orange'}} /> 中 </div> },
-            { value: 1, name: <div><DownCircleFilled style={{color: 'green'}} /> 低 </div> },
+            { value: 3, name: <div><UpCircleFilled style={{ color: 'red' }} /> 高 </div> },
+            { value: 2, name: <div><MinusCircleFilled style={{ color: 'orange' }} /> 中 </div> },
+            { value: 1, name: <div><DownCircleFilled style={{ color: 'green' }} /> 低 </div> },
           ],
           rules: [{ required: true, message: '请选择优先等级' }]
         },
@@ -151,26 +156,40 @@ class Issue extends Component {
           name: 'iterationId'
         }
       ],
+      initialValues: null
     }
   }
 
   render() {
-    const { loading, columns, issues, iterations, visible, forms, extraForms } = this.state
+    const { loading,
+      columns,
+      issues,
+      iterations,
+      visible,
+      forms,
+      extraForms,
+      sideSlipVisible,
+      initialValues } = this.state
 
     return (
       <div className={s.wrapper}>
         <CreateModal
+          initialValues={initialValues}
           width={935}
           visible={visible}
-          title='新建事项'
+          title={initialValues ? '编辑事项' : '创建事项'}
           onCancel={() => this.hanldeVisibleChange(false)}
           forms={forms}
           extraForms={extraForms}
           extraData={iterations}
-          onFinish={this.onFinish} />
+          onFinish={this.onFinish}
+          btnText={initialValues ? '编辑' : '创建'} />
         <div className={s.operations}>
           <Button type='primary' onClick={() => this.hanldeVisibleChange(true)}>创建事项</Button>
         </div>
+        <SideSlip
+          visible={sideSlipVisible}
+          onCancel={() => this.handleSideSlipVisible(false)} />
         <Table
           loading={loading}
           className={s.table}
@@ -206,6 +225,19 @@ class Issue extends Component {
         }
       })
     }
+  }
+
+  // handleEdit = issue => {
+  //   this.setState({
+  //     initialValues: dataFormat(iteration, dataFormatRules, true),
+  //     visible: true,
+  //   })
+  // }
+
+  handleSideSlipVisible = visible => {
+    this.setState({
+      sideSlipVisible: visible,
+    })
   }
 
   hanldeVisibleChange = visible => {
