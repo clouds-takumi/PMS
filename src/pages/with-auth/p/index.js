@@ -6,6 +6,7 @@ import s from './style.less'
 import { connect } from 'react-redux'
 import { setProjectInfo } from '@/redux/actions'
 import { getProject } from './service'
+import { Loading3QuartersOutlined } from '@ant-design/icons'
 
 @connect(
   null,
@@ -33,7 +34,7 @@ class P extends Component {
               ? children
               : (
                 <div className={s.spin}>
-                  <Spin />
+                  <Spin indicator={<Loading3QuartersOutlined spin />} />
                 </div>
               )
           }

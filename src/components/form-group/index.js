@@ -13,7 +13,8 @@ class FormGroup extends Component {
     btnStyle: PropTypes.object,
     forms: PropTypes.array.isRequired,
     extraForms: PropTypes.array,
-    onFinish: PropTypes.func
+    onFinish: PropTypes.func,
+    initialValues: PropTypes.object,
   }
 
   static defaultProps = {
@@ -25,13 +26,14 @@ class FormGroup extends Component {
   formRef = React.createRef()
 
   render() {
-    const { layout, btnText, btnStyle, forms, extraForms, extraData } = this.props
+    const { layout, btnText, btnStyle, forms, extraForms, initialValues } = this.props
 
     return (
       <Form
         ref={this.formRef}
         layout={layout}
-        onFinish={this.handleFinish}>
+        onFinish={this.handleFinish}
+        initialValues={initialValues}>
         <div className={s.wrapper}>
           <div className={s.left}>
             {
@@ -45,7 +47,7 @@ class FormGroup extends Component {
             !!extraForms.length && (
               <div className={s.right}>
                 {
-                  extraForms.map(form => this.renderForm(form, extraData))
+                  extraForms.map(form => this.renderForm(form))
                 }
               </div>
             )
@@ -55,7 +57,7 @@ class FormGroup extends Component {
     )
   }
 
-  renderForm = ({ type, name, placeholder, label, rules, size, initialValue, data }, extraData) => {
+  renderForm = ({ type, name, placeholder, label, rules, size, initialValue, options = [] }) => {
     let ele = <Input size={size} placeholder={placeholder} />
 
     if (type === 'password') {
@@ -67,40 +69,41 @@ class FormGroup extends Component {
     }
 
     if (type === 'editor') {
-      ele = <BraftEditor placeholder={placeholder} className={s.editor} />
-    }
-
-    if (type === 'color') {
-      const initialColor = initialValue.color || '#5e72e4'
-      ele = <InputColor initialHexColor={initialColor} placement="right" />
-    }
-
-    if (type === 'select') {
       ele = (
-        <Select placeholder='未指定' allowClear>
-          {
-            data.map(item => (
-              <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
-            ))
-          }
-        </Select>
+        <BraftEditor
+          placeholder={placeholder}
+          className={s.editor} />
       )
     }
 
-    if (type === 'iteration') {
-      console.log(extraData)
-      if (extraData) {
-        ele = (
-          <Select placeholder='未规划' allowClear>
-            {
-              extraData.map(item => (
-                <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
-              ))
-            }
-          </Select>
-        )
-      }
+    if (type === 'select') {
+      ele = <Select placeholder={placeholder}>
+        {
+          options.map(option => <Select.Option key={option.value} value={option.value}>{option.name}</Select.Option>)
+        }
+      </Select>
     }
+
+    if (type === 'color') {
+      const { initialValues } = this.props
+      const initialColor = (initialValues && initialValues[name]) || '#5e72e4'
+      ele = <InputColor initialHexColor={initialColor} placement="right" />
+    }
+
+    // if (type === 'iteration') {
+    //   console.log(extraData)
+    //   if (extraData) {
+    //     ele = (
+    //       <Select placeholder='未规划' allowClear>
+    //         {
+    //           extraData.map(item => (
+    //             <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
+    //           ))
+    //         }
+    //       </Select>
+    //     )
+    //   }
+    // }
 
     return (
       <Form.Item
@@ -114,27 +117,10 @@ class FormGroup extends Component {
   }
 
   handleFinish = values => {
-    const { desc, startDate, endDate, color, ...restValues } = values
     const { onFinish } = this.props
 
-    if (desc) {
-      restValues.desc = desc.toHTML()
-    }
-
-    if (startDate) {
-      restValues.startDate = startDate.format('YYYY-MM-DD')
-    }
-
-    if (endDate) {
-      restValues.endDate = endDate.format('YYYY-MM-DD')
-    }
-
-    if (color) {
-      restValues.color = color.hex
-    }
-
     if (typeof onFinish === 'function') {
-      onFinish(restValues)
+      onFinish(values)
     }
   }
 }

@@ -4,12 +4,20 @@ import { connect } from 'react-redux'
 import { Table, Divider, Tag, Button, Popconfirm, message } from 'antd'
 import { getTags, createTag, deleteCurTag, updateCurTag } from './service'
 import CreateModal from '@/components/create-modal'
+import { dataFormat } from '@/utils'
+
+const dataFormatRules = [
+  {
+    key: 'color',
+    type: 'color',
+  },
+]
 
 class Tags extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      tags: {},
+      tags: [],
       loading: false,
       tagName: '',
       tagId: '',
@@ -27,7 +35,7 @@ class Tags extends PureComponent {
           render: tag => {
             return (
               <div>
-                <span className={s.operateEdit} onClick={() => this.tagEdit(tag)}>编辑</span>
+                <span className={s.operateEdit} onClick={() => this.handleEditModal(tag)}>编辑</span>
                 <Divider type='vertical' />
                 <Popconfirm
                   title='确认删除?'
@@ -58,28 +66,31 @@ class Tags extends PureComponent {
           name: 'color',
           initialValue: { color: '#5e72e4' }
         }
-      ]
+      ],
+      initialValues: null,
     }
   }
 
   render() {
-    const { tags, loading, columns, visible, forms } = this.state
+    const { tags, loading, columns, visible, forms, initialValues } = this.state
     return (
       <div className={s.wrapper}>
         <CreateModal
+          initialValues={initialValues}
           width={423}
           visible={visible}
-          title='创建标签'
+          title={initialValues ? '编辑标签' : '创建标签'}
           onCancel={() => this.handleVisibleChange(false)}
           forms={forms}
-          onFinish={this.onFinish} />
+          onFinish={this.onFinish}
+          btnText={initialValues ? '编辑' : '创建'} />
         <div className={s.operations}>
           <Button type='primary' onClick={() => this.handleVisibleChange(true)}>创建标签</Button>
         </div>
         <Table
-          className={s.table}
+          // className={s.table}
           loading={loading}
-          dataSource={tags.lists}
+          dataSource={tags}
           columns={columns}
           rowKey='id'
           pagination={false} />
@@ -88,6 +99,27 @@ class Tags extends PureComponent {
   }
 
   componentDidMount() { this.fetchTags() }
+
+  handleEditModal = (tag) => {
+    this.setState({
+      initialValues: dataFormat(tag, dataFormatRules, true),
+      visible: true,
+    })
+  }
+
+  handleCloseModal = () => {
+    this.setState({
+      initialValues: null,
+      visible: false,
+    })
+  }
+
+  handleOpenModal = () => {
+    this.setState({
+      initialValues: null,
+      visible: true,
+    })
+  }
 
   fetchTags = () => {
     const { projectInfo } = this.props
@@ -106,11 +138,23 @@ class Tags extends PureComponent {
   handleVisibleChange = visible => { this.setState({ visible }) }
 
   onFinish = values => {
-    // createTag(projectInfo.id, values).then(() => {
-    //   message.success('创建成功')
-    //   this.handleVisibleChange(false)
-    //   this.fetchTags()
-    // })
+    const { projectInfo } = this.props
+    const { initialValues } = this.state
+
+    if (initialValues) {
+      updateCurTag(projectInfo.id, initialValues.id, dataFormat(values, dataFormatRules)).then(() => {
+        message.success('编辑成功')
+        this.handleCloseModal()
+        this.fetchTags()
+      })
+      return
+    }
+
+    createTag(projectInfo.id, dataFormat(values, dataFormatRules)).then(() => {
+      message.success('创建成功')
+      this.handleCloseModal()
+      this.fetchTags()
+    })
   }
 
   deleteTag = id => {

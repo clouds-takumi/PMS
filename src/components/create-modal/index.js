@@ -12,10 +12,12 @@ class CreateModal extends Component {
     onFinish: PropTypes.func,
     width: PropTypes.number,
     extraForms: PropTypes.array,
+    initialValues: PropTypes.object,
+    btnText: PropTypes.string,
   }
 
   render() {
-    const { width, visible, title, onCancel, forms, extraForms, onFinish, extraData } = this.props
+    const { width, visible, title, onCancel, forms, extraForms, onFinish, initialValues, btnText } = this.props
 
     return (
       <Modal
@@ -25,12 +27,14 @@ class CreateModal extends Component {
         footer={null}
         maskClosable={false}
         onCancel={onCancel}
-        bodyStyle={{ padding: 0 }}>
+        bodyStyle={{ padding: 0 }}
+        destroyOnClose>
         <FormGroup
-          extraData={extraData}
+          initialValues={initialValues}
           forms={forms}
           extraForms={extraForms}
-          onFinish={onFinish} />
+          onFinish={onFinish}
+          btnText={btnText} />
       </Modal>
     )
   }
