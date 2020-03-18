@@ -7,7 +7,6 @@ import { getProjects, createProject } from './service'
 import { Divider, Drawer, Input, Select, Tag, message } from 'antd'
 import { PlusOutlined, ForkOutlined, LeftOutlined } from '@ant-design/icons'
 
-
 class Projects extends Component {
   constructor(props) {
     super(props);
@@ -18,7 +17,6 @@ class Projects extends Component {
       nameTip: false,
       tags: null,
       selectedTags: [],
-      userInfo: null
     }
     document.getElementsByTagName("title")[0].innerText = '项目列表'
   }
@@ -42,7 +40,7 @@ class Projects extends Component {
   }
 
   handleCreate = async () => {
-    const { projectName, userInfo, selectedTags } = this.state
+    const { projectName, selectedTags } = this.state
     if (!projectName) {
       this.fun1()
       return
@@ -56,7 +54,7 @@ class Projects extends Component {
       return
     }
     const tagsStr = selectedTags.join(',')
-    const product = { name: projectName, status: 0, created: userInfo.id, tags: tagsStr }
+    const product = { name: projectName, status: 0, tags: tagsStr }
     const result = await createProject(product)
     if (result && result.id) {
       message.success('创建成功')
@@ -78,7 +76,6 @@ class Projects extends Component {
 
   componentDidMount() {
     this.fetchProjects()
-    // reqUserInfo().then(res => { this.setState({ userInfo: res }) })
     // reqTags().then(res => this.setState({ tags: res }))
   }
 

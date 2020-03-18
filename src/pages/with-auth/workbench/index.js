@@ -7,10 +7,14 @@ import router from 'umi/router'
 import { Select, Empty } from 'antd'
 
 class User extends Component {
-  state = {
-    projects: [],
-    type: '1',
-    switchType: '1',
+  constructor(props) {
+    super(props);
+    this.state = {
+      projects: [],
+      type: '1',
+      switchType: '1',
+    }
+    document.getElementsByTagName("title")[0].innerText = '工作台'
   }
 
   renderAllContent = switchType => {
