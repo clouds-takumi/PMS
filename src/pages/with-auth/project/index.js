@@ -25,8 +25,6 @@ class Projects extends Component {
 
   goback = () => this.setState({ modalFlag: false, projectName: '', selectedTags: [] })
 
-  routeChange = () => router.replace('/p/p1')
-
   handleNameChange = (e) => {
     let name = e.target.value
     this.setState({ projectName: name })
@@ -70,15 +68,16 @@ class Projects extends Component {
   fun2 = _.throttle(() => message.info({ top: 0, key: '1', content: '项目名称超过了20个字符' }), 3000)
   fun3 = _.throttle(() => message.info({ top: 0, key: '1', content: '项目标签应该不多于3个' }), 3000)
 
-  fetchData = async () => {
-    const resData = await getProjects()
-    if (resData.lists) {
-      this.setState({ projects: resData.lists })
-    }
+  fetchProjects = () => {
+    getProjects().then(({ data }) => {
+      if (data && data.lists) {
+        this.setState({ projects: data.lists })
+      }
+    })
   }
 
   componentDidMount() {
-    this.fetchData()
+    this.fetchProjects()
     // reqUserInfo().then(res => { this.setState({ userInfo: res }) })
     // reqTags().then(res => this.setState({ tags: res }))
   }
@@ -183,15 +182,14 @@ class Projects extends Component {
               </div>
             </div>
             {
-              projects.map((item, index) => {
+              projects.map((project, index) => {
                 return (
-                  <div onClick={this.routeChange}>
-                    <div className={s.mItem}>
-                      <div className={s.itemImg}>
-                        <div>img</div>
-                      </div>
-                      <div className={s.itemName}>{item.name}</div>
-                    </div>
+                  <div
+                    className={s.pItem}
+                    key={project.id}
+                    onClick={() => router.push(`/p/${project.id}/overview`)}>
+                    <div className={s.itemImgx}></div>
+                    <div className={s.itemName}>{project.name}</div>
                   </div>
                 )
               })
