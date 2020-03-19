@@ -239,7 +239,6 @@ class Iteration extends Component {
     if (projectInfo.id) {
       getIterations(projectInfo.id, { page }).then(({ data }) => {
         if (data) {
-          console.log(data)
           this.setState({ iterations: data })
           this.setState({ loading: false })
         }

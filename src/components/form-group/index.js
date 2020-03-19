@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import s from './style.less'
 import PropTypes from 'prop-types'
-import { Form, Input, DatePicker, Button, Select } from 'antd'
+import { Form, Input, DatePicker, Button, Select, Upload } from 'antd'
 import 'braft-editor/dist/index.css'
 import BraftEditor from 'braft-editor'
 import InputColor from 'react-input-color'
+import MyAvatar from './avatar'
 
 class FormGroup extends Component {
   static propTypes = {
@@ -15,6 +16,7 @@ class FormGroup extends Component {
     extraForms: PropTypes.array,
     onFinish: PropTypes.func,
     initialValues: PropTypes.object,
+    showCancel: PropTypes.bool,
   }
 
   static defaultProps = {
@@ -26,7 +28,7 @@ class FormGroup extends Component {
   formRef = React.createRef()
 
   render() {
-    const { layout, btnText, btnStyle, forms, extraForms, initialValues } = this.props
+    const { layout, btnText, btnStyle, forms, extraForms, initialValues, showCancel } = this.props
 
     return (
       <Form
@@ -41,6 +43,11 @@ class FormGroup extends Component {
             }
             <Form.Item>
               <Button type='primary' htmlType='submit' style={btnStyle}>{btnText}</Button>
+              {
+                showCancel && (
+                  <Button onClick={this.handleCancel} style={{marginLeft: 16}}>取消</Button>
+                )
+              }
             </Form.Item>
           </div>
           {
@@ -57,7 +64,7 @@ class FormGroup extends Component {
     )
   }
 
-  renderForm = ({ type, name, placeholder, label, rules, size, initialValue, options = [] }) => {
+  renderForm = ({ type, name, placeholder, label, rules, size, element, options = [] }) => {
     let ele = <Input size={size} placeholder={placeholder} />
 
     if (type === 'password') {
@@ -90,6 +97,14 @@ class FormGroup extends Component {
       ele = <InputColor initialHexColor={initialColor} placement="right" />
     }
 
+    if (type === 'avatar') {
+      ele = <MyAvatar />
+    }
+
+    if (type === 'plain') {
+      ele = <div>{element}</div>
+    }
+
     // if (type === 'iteration') {
     //   console.log(extraData)
     //   if (extraData) {
@@ -107,7 +122,7 @@ class FormGroup extends Component {
 
     return (
       <Form.Item
-        key={name}
+        key={name || label}
         label={label}
         name={name}
         rules={rules}>
@@ -121,6 +136,14 @@ class FormGroup extends Component {
 
     if (typeof onFinish === 'function') {
       onFinish(values)
+    }
+  }
+
+  handleCancel = () => {
+    const { onCancel } = this.props
+
+    if (typeof onCancel === 'function') {
+      onCancel()
     }
   }
 }

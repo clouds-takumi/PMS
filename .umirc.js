@@ -15,6 +15,7 @@ export default {
             { path: '/', redirect: '/workbench' },
             { path: '/workbench', component: '../pages/with-auth/workbench' },
             { path: '/project', component: '../pages/with-auth/project' },
+            { path: '/center', component: '../pages/with-auth/center' },
             {
               path: '/p/:projectId/:type',
               component: '../pages/with-auth/p/index',

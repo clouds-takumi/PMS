@@ -72,7 +72,7 @@ class WithAuth extends Component {
   renderMenu = () => {
     return (
       <Menu>
-        <Menu.Item>个人设置</Menu.Item>
+        <Menu.Item><Link to='/center'>个人设置</Link></Menu.Item>
         <Menu.Divider />
         <Menu.Item onClick={this.handleLogout}>退出登录</Menu.Item>
       </Menu>
