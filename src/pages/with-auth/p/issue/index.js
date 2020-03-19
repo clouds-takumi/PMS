@@ -9,7 +9,6 @@ import { UpCircleFilled, MinusCircleFilled, DownCircleFilled } from '@ant-design
 import SideSlip from '@/components/side-slip'
 import { dataFormat } from '@/utils'
 
-
 const priorityMap = [
   { id: 1, name: '高' },
   { id: 2, name: '中' },
@@ -151,9 +150,11 @@ class Issue extends Component {
           name: 'deadline',
         },
         {
-          type: 'iteration',
+          type: 'select',
           label: '所属迭代',
-          name: 'iterationId'
+          name: 'iterationId',
+          options: [],
+          placeholder: '选择迭代',
         }
       ],
       initialValues: null
@@ -203,14 +204,19 @@ class Issue extends Component {
 
   componentDidMount() {
     this.fetchIssues()
+    this.fetchIterations()
+  }
+
+  fetchIterations = () => {
     const { projectInfo } = this.props
-    if (projectInfo) {
-      getIterations(projectInfo.id).then(({ data }) => {
-        if (data) {
-          this.setState({ iterations: data.lists })
-        }
-      })
-    }
+    getIterations(projectInfo.id, { page: 1000 }).then(({ data }) => {
+      if (data) {
+        const { extraForms } = this.state
+
+        extraForms[3].options = data.lists.map(list => ({ ...list, value: list.id }))
+        this.setState({ extraForms })
+      }
+    })
   }
 
   fetchIssues = () => {
