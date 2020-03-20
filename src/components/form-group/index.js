@@ -1,11 +1,12 @@
 import React, { Component } from 'react'
 import s from './style.less'
 import PropTypes from 'prop-types'
-import { Form, Input, DatePicker, Button, Select, Upload } from 'antd'
+import { Form, Input, DatePicker, Button, Select } from 'antd'
 import 'braft-editor/dist/index.css'
 import BraftEditor from 'braft-editor'
 import InputColor from 'react-input-color'
 import MyAvatar from './avatar'
+import IterationSelect from './iteration-select'
 
 class FormGroup extends Component {
   static propTypes = {
@@ -105,20 +106,9 @@ class FormGroup extends Component {
       ele = <div>{element}</div>
     }
 
-    // if (type === 'iteration') {
-    //   console.log(extraData)
-    //   if (extraData) {
-    //     ele = (
-    //       <Select placeholder='未规划' allowClear>
-    //         {
-    //           extraData.map(item => (
-    //             <Select.Option key={item.id} value={item.id}>{item.name}</Select.Option>
-    //           ))
-    //         }
-    //       </Select>
-    //     )
-    //   }
-    // }
+    if (type === 'iterations') {
+      ele = <IterationSelect />
+    }
 
     return (
       <Form.Item

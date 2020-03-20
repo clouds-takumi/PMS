@@ -10,9 +10,9 @@ import SideSlip from '@/components/side-slip'
 import { dataFormat } from '@/utils'
 
 const priorityMap = [
-  { id: 1, name: '高' },
+  { id: 3, name: '高' },
   { id: 2, name: '中' },
-  { id: 3, name: '低' },
+  { id: 1, name: '低' },
 ]
 
 class Issue extends Component {
@@ -73,8 +73,8 @@ class Issue extends Component {
           width: 120,
           render: dataIndex => {
             if (dataIndex) {
-              if (this.state.iters) {
-                return this.state.iters.map((item, index) => {
+              if (this.state.iterations) {
+                return this.state.iterations.map((item, index) => {
                   if (item.id === dataIndex) {
                     return <div key={index}>{item.name}</div>
                   } else {
@@ -130,7 +130,6 @@ class Issue extends Component {
           type: 'select',
           label: '优先级',
           name: 'priority',
-          data: priorityMap,
           placeholder: '请选择优先等级',
           options: [
             { value: 3, name: <div><UpCircleFilled style={{ color: 'red' }} /> 高 </div> },
@@ -153,7 +152,6 @@ class Issue extends Component {
           type: 'select',
           label: '所属迭代',
           name: 'iterationId',
-          options: [],
           placeholder: '选择迭代',
         }
       ],
@@ -165,7 +163,6 @@ class Issue extends Component {
     const { loading,
       columns,
       issues,
-      iterations,
       visible,
       forms,
       extraForms,
@@ -182,7 +179,6 @@ class Issue extends Component {
           onCancel={() => this.hanldeVisibleChange(false)}
           forms={forms}
           extraForms={extraForms}
-          extraData={iterations}
           onFinish={this.onFinish}
           btnText={initialValues ? '编辑' : '创建'} />
         <div className={s.operations}>
@@ -211,6 +207,7 @@ class Issue extends Component {
     const { projectInfo } = this.props
     getIterations(projectInfo.id, { page: 1000 }).then(({ data }) => {
       if (data) {
+        this.setState({ iterations: data.lists })
         const { extraForms } = this.state
 
         extraForms[3].options = data.lists.map(list => ({ ...list, value: list.id }))
@@ -233,12 +230,12 @@ class Issue extends Component {
     }
   }
 
-  // handleEdit = issue => {
-  //   this.setState({
-  //     initialValues: dataFormat(iteration, dataFormatRules, true),
-  //     visible: true,
-  //   })
-  // }
+  handleEdit = issue => {
+    // this.setState({
+    //   initialValues: dataFormat(iteration, dataFormatRules, true),
+    //   visible: true,
+    // })
+  }
 
   handleSideSlipVisible = visible => {
     this.setState({
