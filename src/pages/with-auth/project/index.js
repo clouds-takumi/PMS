@@ -1,11 +1,20 @@
 import { Component } from 'react'
-import _ from 'lodash'
+// import _ from 'lodash'
 import s from './style.less'
-import cn from 'classnames'
+// import cn from 'classnames'
 import router from 'umi/router'
 import { getProjects, createProject } from './service'
-import { Divider, Drawer, Input, Select, Tag, message } from 'antd'
+import { Divider, Drawer, message } from 'antd'
 import { PlusOutlined, ForkOutlined, LeftOutlined } from '@ant-design/icons'
+import FormGroup from '@/components/form-group'
+import { dataFormat } from '@/utils'
+
+const dataFormatRules = [
+  {
+    key: 'desc',
+    type: 'html',
+  },
+]
 
 class Projects extends Component {
   constructor(props) {
@@ -13,74 +22,39 @@ class Projects extends Component {
     this.state = {
       projects: [],
       modalFlag: false,
-      projectName: '',
-      nameTip: false,
-      tags: null,
-      selectedTags: [],
+      forms: [
+        {
+          label: '项目名称',
+          style: { fontSize: '14px', color: '#202d40', fontWeight: 700 },
+          name: 'name',
+          rules: [
+            { required: true, message: '请输入项目名称' },
+            { max: 20, message: '名称不能大于20个字符' }
+          ],
+        },
+        {
+          type: 'editor',
+          label: '项目描述',
+          style: { fontSize: '14px', color: '#202d40', fontWeight: 700 },
+          name: 'desc',
+        },
+      ],
+      extraForms: [
+        // {
+        //   type: 'avatar',
+        //   label: '项目封面',
+        //   name: 'avatar',
+        // }
+      ]
+      // projectName: '',
+      // nameTip: false,
     }
     document.getElementsByTagName("title")[0].innerText = '项目列表'
   }
 
-  goback = () => this.setState({ modalFlag: false, projectName: '', selectedTags: [] })
-
-  handleNameChange = (e) => {
-    let name = e.target.value
-    this.setState({ projectName: name })
-    if (name === '') {
-      this.setState({ nameTip: true })
-    } else {
-      this.setState({ nameTip: false })
-    }
-  }
-
-  handleSelectTag = value => {
-    if (value) {
-      this.setState({ selectedTags: value })
-    }
-  }
-
-  handleCreate = async () => {
-    const { projectName, selectedTags } = this.state
-    if (!projectName) {
-      this.fun1()
-      return
-    }
-    if (projectName.length > 20) {
-      this.fun2()
-      return
-    }
-    if (selectedTags.length > 3) {
-      this.fun3()
-      return
-    }
-    const tagsStr = selectedTags.join(',')
-    const product = { name: projectName, status: 0, tags: tagsStr }
-    const result = await createProject(product)
-    if (result && result.id) {
-      message.success('创建成功')
-      this.setState({ modalFlag: false, projectName: '', selectedTags: [] })
-      this.fetchData()
-    }
-  }
-  fun1 = _.throttle(() => message.info({ top: 0, key: '1', content: '请填写需求名称' }), 3000)
-  fun2 = _.throttle(() => message.info({ top: 0, key: '1', content: '项目名称超过了20个字符' }), 3000)
-  fun3 = _.throttle(() => message.info({ top: 0, key: '1', content: '项目标签应该不多于3个' }), 3000)
-
-  fetchProjects = () => {
-    getProjects().then(({ data }) => {
-      if (data && data.lists) {
-        this.setState({ projects: data.lists })
-      }
-    })
-  }
-
-  componentDidMount() {
-    this.fetchProjects()
-    // reqTags().then(res => this.setState({ tags: res }))
-  }
-
   renderModal = () => {
-    const { projectName, nameTip, tags } = this.state
+    const { forms, extraForms } = this.state
+    // const { projectName, nameTip } = this.state
     return (
       <Drawer
         title=""
@@ -101,24 +75,26 @@ class Projects extends Component {
                 <span>填写项目基本信息</span>
               </div>
               <div style={{ display: 'flex' }}>
+                <div style={{ marginRight: '32px', width: '700px' }}>
+                  <FormGroup
+                    forms={forms}
+                    // extraForms={extraForms}
+                    onFinish={this.onFinish} />
+                </div>
+                <div className={s.infoPic}>
+                  <span className={s.picTitle}>项目封面</span>
+                  <div className={s.bcImg}></div>
+                  <button className={s.changeBtn} >更改封面</button>
+                </div>
+              </div>
+
+
+              {/* <div style={{ display: 'flex' }}>
                 <div style={{ marginRight: '32px', width: '500px' }}>
                   <div className={s.item}>
                     <div className={s.subtitle}>项目名称</div>
                     <Input value={projectName} onChange={this.handleNameChange} />
                     <span className={s.tips} style={nameTip ? { color: 'red' } : {}}>{nameTip ? '项目名称不能为空' : '可以使用中英文、数字、空格组合'}</span>
-                  </div>
-                  <div className={s.item}>
-                    <div className={s.subtitle}>项目标签</div>
-                    <Select
-                      mode="multiple"
-                      style={{ width: '100%' }}
-                      onChange={this.handleSelectTag}>
-                      {tags && tags.map(
-                        tag => <Select.Option key={tag.id} >
-                          <Tag color={tag.color}>{tag.name}</Tag>
-                        </Select.Option>)}
-                    </Select>
-                    <span className={s.tips}>建议选择最多不超过三个</span>
                   </div>
                   <div className={s.item}>
                     <div className={s.subtitle}>项目描述</div>
@@ -132,12 +108,13 @@ class Projects extends Component {
                   <button className={cn(s.btn, s.leftBtn)} onClick={this.handleCreate}>完成创建</button>
                   <button className={s.btn} onClick={this.goback}>取消</button>
                 </div>
+
                 <div className={s.infoPic}>
                   <span className={s.picTitle}>项目封面</span>
                   <div className={s.bcImg}></div>
                   <button className={s.changeBtn} >更改封面</button>
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>
@@ -175,7 +152,7 @@ class Projects extends Component {
                 <div className={s.itemImg}>
                   <PlusOutlined />
                 </div>
-                <div className={s.itemName}>新建项目</div>
+                <div className={s.itemName}>创建项目</div>
               </div>
             </div>
             {
@@ -200,6 +177,63 @@ class Projects extends Component {
       </div>
     );
   }
+
+  fetchProjects = () => {
+    getProjects().then(({ data }) => {
+      if (data && data.lists) {
+        this.setState({ projects: data.lists })
+      }
+    })
+  }
+
+  componentDidMount() {
+    this.fetchProjects()
+  }
+
+  onFinish = values => {
+    console.log(values)
+    createProject(dataFormat(values, dataFormatRules)).then(() => {
+      message.success('创建成功')
+      this.goback()
+      this.fetchProjects()
+    })
+  }
+
+  goback = () => this.setState({ modalFlag: false })
+  // goback = () => this.setState({ modalFlag: false, projectName: '' })
+
+  // handleNameChange = (e) => {
+  //   let name = e.target.value
+  //   this.setState({ projectName: name })
+  //   if (name === '') {
+  //     this.setState({ nameTip: true })
+  //   } else {
+  //     this.setState({ nameTip: false })
+  //   }
+  // }
+
+  // handleCreate = async () => {
+  //   const { projectName } = this.state
+  //   if (!projectName) {
+  //     this.fun1()
+  //     return
+  //   }
+  //   if (projectName.length > 20) {
+  //     this.fun2()
+  //     return
+  //   }
+  //   const product = { name: projectName }
+  //   const result = await createProject(product)
+  //   if (result) {
+  //     message.success('创建成功')
+  //     this.setState({ modalFlag: false, projectName: '' })
+  //     this.fetchProjects()
+  //   }
+  // }
+  // fun1 = _.throttle(() => message.info({ top: 0, key: '1', content: '请填写需求名称' }), 3000)
+  // fun2 = _.throttle(() => message.info({ top: 0, key: '1', content: '项目名称超过了20个字符' }), 3000)
 }
+
+
 
 export default Projects

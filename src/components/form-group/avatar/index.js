@@ -23,7 +23,7 @@ class MyAvatar extends Component {
         <Upload
           action='https://api.imgbb.com/1/upload'
           name='image'
-          data={{ key: '你的key' }}
+          data={{ key: '825f623ad7c79c8256b098eaa06d1e22' }}
           onChange={this.handleChange}
           showUploadList={{
             showRemoveIcon: false

@@ -41,7 +41,7 @@ class WithAuth extends Component {
               : <Link to='/'>
                   <div className={s.logo}>
                     <LeftOutlined className={s.logoLink} />
-                    {projectInfo.name}
+                    <div>{projectInfo.name}</div>
                   </div>
                 </Link>
           }

@@ -45,7 +45,7 @@ class FormGroup extends Component {
               <Button type='primary' htmlType='submit' style={btnStyle}>{btnText}</Button>
               {
                 showCancel && (
-                  <Button onClick={this.handleCancel} style={{marginLeft: 16}}>取消</Button>
+                  <Button onClick={this.handleCancel} style={{ marginLeft: 16 }}>取消</Button>
                 )
               }
             </Form.Item>
@@ -64,7 +64,7 @@ class FormGroup extends Component {
     )
   }
 
-  renderForm = ({ type, name, placeholder, label, rules, size, element, options = [] }) => {
+  renderForm = ({ type, name, style, placeholder, label, rules, size, element, options = [] }) => {
     let ele = <Input size={size} placeholder={placeholder} />
 
     if (type === 'password') {
@@ -125,6 +125,7 @@ class FormGroup extends Component {
         key={name || label}
         label={label}
         name={name}
+        style={style ? style : null}
         rules={rules}>
         {ele}
       </Form.Item>

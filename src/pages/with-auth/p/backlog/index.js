@@ -19,7 +19,7 @@ import {
 class Backlog extends Component {
   state = {
     issues: { backlog: [] },
-    iterations: [{ id: 1, name: 'xxx' }, { id: 2, name: 'xxxxx' }],
+    iterations: [],
     itemId: null,
     iterationExpand: { backlog: true },
     drawerVisible: false

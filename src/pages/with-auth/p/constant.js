@@ -28,11 +28,11 @@ export const menu = [
     name: '事项列表',
     icon: <FilterOutlined />,
   },
-  {
-    key: 'tag',
-    name: '标签列表',
-    icon: <TagsOutlined />,
-  },
+  // {
+  //   key: 'tag',
+  //   name: '标签列表',
+  //   icon: <TagsOutlined />,
+  // },
   {
     key: 'user',
     name: '用户列表',
