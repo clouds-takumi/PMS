@@ -3,7 +3,7 @@ import { Component } from 'react'
 import s from './style.less'
 // import cn from 'classnames'
 import router from 'umi/router'
-import { getProjects, createProject } from './service'
+import { getProjects, createProject } from '@/service'
 import { Divider, Drawer, message } from 'antd'
 import { PlusOutlined, ForkOutlined, LeftOutlined } from '@ant-design/icons'
 import FormGroup from '@/components/form-group'
@@ -14,6 +14,10 @@ const dataFormatRules = [
     key: 'desc',
     type: 'html',
   },
+  {
+    key: 'participant',
+    type: 'array',
+  }
 ]
 
 class Projects extends Component {
@@ -40,11 +44,17 @@ class Projects extends Component {
         },
       ],
       extraForms: [
-        // {
-        //   type: 'avatar',
-        //   label: '项目封面',
-        //   name: 'avatar',
-        // }
+        {
+          type: 'avatar',
+          label: '项目封面',
+          name: 'avatar',
+        },
+        {
+          type: 'user-select',
+          label: '项目成员',
+          name: 'participant',
+          placeholder: '选择项目成员',
+        }
       ]
       // projectName: '',
       // nameTip: false,
@@ -78,14 +88,15 @@ class Projects extends Component {
                 <div style={{ marginRight: '32px', width: '700px' }}>
                   <FormGroup
                     forms={forms}
-                    // extraForms={extraForms}
+                    extraForms={extraForms}
+                    extraClassName={s.formGroupExtra}
                     onFinish={this.onFinish} />
                 </div>
-                <div className={s.infoPic}>
+                {/* <div className={s.infoPic}>
                   <span className={s.picTitle}>项目封面</span>
                   <div className={s.bcImg}></div>
                   <button className={s.changeBtn} >更改封面</button>
-                </div>
+                </div> */}
               </div>
 
 
@@ -162,7 +173,8 @@ class Projects extends Component {
                     className={s.pItem}
                     key={project.id}
                     onClick={() => router.push(`/p/${project.id}/overview`)}>
-                    <div className={s.itemImgx}></div>
+                    {/* <div className={s.itemImgx}></div> */}
+                    <img src={project.avatar} className={s.itemImgx} alt='' />
                     <div className={s.itemName}>{project.name}</div>
                   </div>
                 )
@@ -191,7 +203,6 @@ class Projects extends Component {
   }
 
   onFinish = values => {
-    console.log(values)
     createProject(dataFormat(values, dataFormatRules)).then(() => {
       message.success('创建成功')
       this.goback()

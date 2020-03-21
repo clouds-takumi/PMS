@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { getIterations, createIteration, delIdIteration, editIteration } from './service'
+import { getIterations, createIteration, delIdIteration, editIteration } from '@/service'
 import { connect } from 'react-redux'
 import { Table, Button, message, Divider, Modal } from 'antd'
 import s from './style.less'

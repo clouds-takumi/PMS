@@ -1,8 +1,9 @@
 import { Component } from 'react'
 import s from './style.less'
 import router from 'umi/router';
-import { toLogin, toRegister } from './service'
+import { toLogin, toRegister } from '@/service'
 import FormGroup from '@/components/form-group'
+import { message } from 'antd';
 
 class Login extends Component {
   state = {
@@ -129,6 +130,7 @@ class Login extends Component {
     const { username, password } = values
 
     toRegister({ username, password }).then(({ data }) => {
+      message.success('注册成功')
       this.handleChangeType(1)
     })
   }

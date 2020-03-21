@@ -7,6 +7,8 @@ import BraftEditor from 'braft-editor'
 import InputColor from 'react-input-color'
 import MyAvatar from './avatar'
 import IterationSelect from './iteration-select'
+import UserSelect from './user-select'
+import cn from 'classnames'
 
 class FormGroup extends Component {
   static propTypes = {
@@ -18,6 +20,7 @@ class FormGroup extends Component {
     onFinish: PropTypes.func,
     initialValues: PropTypes.object,
     showCancel: PropTypes.bool,
+    extraClassName: PropTypes.string,
   }
 
   static defaultProps = {
@@ -29,7 +32,16 @@ class FormGroup extends Component {
   formRef = React.createRef()
 
   render() {
-    const { layout, btnText, btnStyle, forms, extraForms, initialValues, showCancel } = this.props
+    const {
+      layout,
+      btnText,
+      btnStyle,
+      forms,
+      extraForms,
+      initialValues,
+      showCancel,
+      extraClassName,
+    } = this.props
 
     return (
       <Form
@@ -53,7 +65,7 @@ class FormGroup extends Component {
           </div>
           {
             !!extraForms.length && (
-              <div className={s.right}>
+              <div className={cn(s.right, extraClassName)}>
                 {
                   extraForms.map(form => this.renderForm(form))
                 }
@@ -87,7 +99,7 @@ class FormGroup extends Component {
     if (type === 'select') {
       ele = <Select placeholder={placeholder}>
         {
-          options.map(option => <Select.Option key={option.value} value={option.value}>{option.name}</Select.Option>)
+          options.map(option => <Select.Option key={option.value || option.id} value={option.value || option.id}>{option.name}</Select.Option>)
         }
       </Select>
     }
@@ -108,6 +120,10 @@ class FormGroup extends Component {
 
     if (type === 'iterations') {
       ele = <IterationSelect />
+    }
+
+    if (type === 'user-select') {
+      ele = <UserSelect placeholder={placeholder} />
     }
 
     return (

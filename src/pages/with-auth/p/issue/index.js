@@ -1,5 +1,5 @@
 import { Component } from 'react'
-import { getIssues, createIssue, deleteCurIssue, getIterations } from './service'
+import { getIssues, createIssue, deleteCurIssue, getIterations, editIssue } from '@/service'
 import { connect } from 'react-redux'
 import { Table, Button, message, Divider, Popconfirm } from 'antd'
 import s from './style.less'
@@ -8,6 +8,17 @@ import moment from 'moment'
 import { UpCircleFilled, MinusCircleFilled, DownCircleFilled } from '@ant-design/icons'
 import SideSlip from '@/components/side-slip'
 import { dataFormat } from '@/utils'
+
+const dataFormatRules = [
+  {
+    key: 'desc',
+    type: 'html',
+  },
+  {
+    key: 'deadline',
+    type: 'moment',
+  },
+]
 
 const priorityMap = [
   { id: 3, name: '高' },
@@ -18,6 +29,7 @@ const priorityMap = [
 class Issue extends Component {
   constructor(props) {
     super(props)
+    const { participant } = props.projectInfo
     this.state = {
       issues: {},
       iterations: [],
@@ -37,7 +49,7 @@ class Issue extends Component {
           key: 'assignee',
           width: 120,
           render: dataIndex => {
-            return dataIndex ? dataIndex : <div>未分配</div>
+            return dataIndex ? dataIndex.name : <div>未分配</div>
           }
         },
         {
@@ -132,16 +144,18 @@ class Issue extends Component {
           name: 'priority',
           placeholder: '请选择优先等级',
           options: [
-            { value: 3, name: <div><UpCircleFilled style={{ color: 'red' }} /> 高 </div> },
-            { value: 2, name: <div><MinusCircleFilled style={{ color: 'orange' }} /> 中 </div> },
-            { value: 1, name: <div><DownCircleFilled style={{ color: 'green' }} /> 低 </div> },
+            { value: 3, name: <div><UpCircleFilled style={{ color: '#e05846' }} /> 高 </div> },
+            { value: 2, name: <div><MinusCircleFilled style={{ color: '#f8cd55' }} /> 中 </div> },
+            { value: 1, name: <div><DownCircleFilled style={{ color: '#8dcb57' }} /> 低 </div> },
           ],
           rules: [{ required: true, message: '请选择优先等级' }]
         },
         {
-          type: 'assignee',
-          label: '负责人',
+          type: 'select',
+          label: '处理人',
           name: 'assignee',
+          options: participant,
+          placeholder: '选择处理人'
         },
         {
           type: 'date',
@@ -176,13 +190,13 @@ class Issue extends Component {
           width={935}
           visible={visible}
           title={initialValues ? '编辑事项' : '创建事项'}
-          onCancel={() => this.hanldeVisibleChange(false)}
+          onCancel={this.handleCloseModal}
           forms={forms}
           extraForms={extraForms}
           onFinish={this.onFinish}
           btnText={initialValues ? '编辑' : '创建'} />
         <div className={s.operations}>
-          <Button type='primary' onClick={() => this.hanldeVisibleChange(true)}>创建事项</Button>
+          <Button type='primary' onClick={this.handleOpenModal}>创建事项</Button>
         </div>
         <SideSlip
           visible={sideSlipVisible}
@@ -205,7 +219,7 @@ class Issue extends Component {
 
   fetchIterations = () => {
     const { projectInfo } = this.props
-    getIterations(projectInfo.id, { page: 1000 }).then(({ data }) => {
+    getIterations(projectInfo.id, { pageSize: 9999 }).then(({ data }) => {
       if (data) {
         this.setState({ iterations: data.lists })
         const { extraForms } = this.state
@@ -230,11 +244,33 @@ class Issue extends Component {
     }
   }
 
-  handleEdit = issue => {
-    // this.setState({
-    //   initialValues: dataFormat(iteration, dataFormatRules, true),
-    //   visible: true,
-    // })
+  handleEdit = ({ id, name, desc, priority, assignee, deadline, iterationId }) => {
+    this.setState({
+      initialValues: dataFormat({
+        id,
+        name,
+        desc,
+        priority,
+        assignee: assignee ? assignee.id : null,
+        deadline,
+        iterationId,
+      }, dataFormatRules, true),
+      visible: true,
+    })
+  }
+
+  handleOpenModal = () => {
+    this.setState({
+      initialValues: null,
+      visible: true,
+    })
+  }
+
+  handleCloseModal = () => {
+    this.setState({
+      initialValues: null,
+      visible: false,
+    })
   }
 
   handleSideSlipVisible = visible => {
@@ -243,16 +279,22 @@ class Issue extends Component {
     })
   }
 
-  hanldeVisibleChange = visible => {
-    this.setState({ visible })
-  }
-
   onFinish = values => {
     const { projectInfo } = this.props
+    const { initialValues } = this.state
 
-    createIssue(projectInfo.id, values).then(() => {
+    if (initialValues) {
+      editIssue(projectInfo.id, initialValues.id, dataFormat(values, dataFormatRules)).then(() => {
+        message.success('更新成功')
+        this.handleCloseModal()
+        this.fetchIssues()
+      })
+      return
+    }
+
+    createIssue(projectInfo.id, dataFormat(values, dataFormatRules)).then(() => {
       message.success('创建成功')
-      this.hanldeVisibleChange(false)
+      this.handleCloseModal()
       this.fetchIssues()
     })
   }

@@ -4,7 +4,7 @@ import { Menu, Dropdown, Avatar, Spin } from 'antd';
 import { DownOutlined, LeftOutlined, Loading3QuartersOutlined } from '@ant-design/icons';
 import s from './style.less'
 import router from 'umi/router';
-import { getUserInfo } from './service';
+import { getUserInfo } from '@/service';
 import { setUserInfo } from '@/redux/actions'
 import Link from 'umi/link';
 

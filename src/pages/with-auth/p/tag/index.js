@@ -2,7 +2,7 @@ import { PureComponent } from 'react'
 import s from './style.less'
 import { connect } from 'react-redux'
 import { Table, Divider, Tag, Button, Popconfirm, message } from 'antd'
-import { getTags, createTag, deleteCurTag, updateCurTag } from './service'
+import { getTags, createTag, deleteCurTag, updateCurTag } from '@/service'
 import CreateModal from '@/components/create-modal'
 import { dataFormat } from '@/utils'
 
