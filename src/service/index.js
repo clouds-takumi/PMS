@@ -116,3 +116,8 @@ export const updateCurTag = (projectId, id, data) => request({
 export const reqIdTag = (projectId, id) => request({
   url: `/p/${projectId}/tag/${id}`
 })
+
+//activity
+export const getActivity = projectId => request({
+  url: `/p/${projectId}/activity`
+})

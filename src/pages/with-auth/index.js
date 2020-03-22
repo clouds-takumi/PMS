@@ -48,6 +48,7 @@ class WithAuth extends Component {
           <div className={s.headerRight}>
             <Dropdown overlay={this.renderMenu()}>
               <div className={s.avatar}>
+                <span style={{marginRight: 8}}>{userInfo.name}</span>
                 <Avatar className={s.avatarEle} src={userInfo.avatar} />
                 <DownOutlined />
               </div>

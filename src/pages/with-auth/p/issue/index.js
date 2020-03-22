@@ -302,7 +302,7 @@ class Issue extends Component {
   delCurIssue = id => {
     const { projectInfo } = this.props
 
-    deleteCurIssue(projectInfo, id).then(() => {
+    deleteCurIssue(projectInfo.id, id).then(() => {
       message.success(`删除成功`)
       this.fetchIssues()
     })
