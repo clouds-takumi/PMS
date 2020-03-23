@@ -13,6 +13,9 @@ export const dataFormat = (obj, rules, reverse) => {
     if (type === 'color' && obj[key]) {
       obj[key] = !reverse ? obj[key].hex : obj[key]
     }
+    if (type === 'array' && obj[key]) {
+      obj[key] = !reverse ? obj[key].join(',') : obj[key]
+    }
   })
 
   return { ...obj }

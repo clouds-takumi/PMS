@@ -2,7 +2,7 @@ import { PureComponent } from 'react'
 import s from './style.less'
 import { connect } from 'react-redux'
 import { Table, Divider, Tag, Button, Popconfirm, message } from 'antd'
-import { getTags, createTag, deleteCurTag, updateCurTag } from './service'
+import { getTags, createTag, deleteCurTag, updateCurTag } from '@/service'
 import CreateModal from '@/components/create-modal'
 import { dataFormat } from '@/utils'
 
@@ -160,13 +160,9 @@ class Tags extends PureComponent {
   deleteTag = id => {
     const { projectInfo } = this.props
 
-    // if (projectInfo) {
-    //   deleteCurTag(projectInfo.id, id).then(() => this.fetchTags())
-    // }
-  }
-
-  tagEdit = ({ id, name, color }) => {
-
+    if (projectInfo) {
+      deleteCurTag(projectInfo.id, id).then(() => this.fetchTags())
+    }
   }
 }
 export default connect(store => ({ projectInfo: store.projectInfo }))(Tags)

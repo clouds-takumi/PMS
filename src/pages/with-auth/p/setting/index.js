@@ -3,31 +3,36 @@ import s from './style.less'
 import { connect } from 'react-redux'
 import { message, Avatar } from 'antd'
 import FormGroup from '@/components/form-group'
-import { updateUserInfo, getUserInfo } from '@/service'
+import { editProject, getProject } from '@/service'
 import { dataFormat } from '@/utils'
-import { setUserInfo } from '@/redux/actions'
+import { setProjectInfo } from '@/redux/actions'
 
 const dataFormatRules = [
   {
     key: 'desc',
     type: 'html',
   },
+  {
+    key: 'participant',
+    type: 'array',
+  }
 ]
 
 @connect(
-  store => ({ userInfo: store.userInfo }),
+  store => ({ projectInfo: store.projectInfo }),
   dispatch => ({
-    setUserInfo: userInfo => dispatch(setUserInfo(userInfo))
+    setProjectInfo: projectInfo => dispatch(setProjectInfo(projectInfo))
   })
 )
-class Center extends Component {
+class Setting extends Component {
   state = {
     isCreating: false,
   }
 
   render() {
     const { isCreating } = this.state
-    const { userInfo } = this.props
+    const { projectInfo } = this.props
+    const { name, desc, avatar, participant } = projectInfo
 
     let forms = []
     let extraForms = []
@@ -37,21 +42,28 @@ class Center extends Component {
       forms = [
         {
           type: 'plain',
-          label: '名称',
-          element: userInfo.name || <span style={{color: '#ccc'}}>暂无</span>,
+          label: '项目名称',
+          element: name || <span style={{color: '#ccc'}}>暂无</span>,
         },
         {
           type: 'plain',
-          label: '简介',
-          element: userInfo.desc ? <div dangerouslySetInnerHTML={{__html: userInfo.desc}}></div> : <span style={{color: '#ccc'}}>暂无</span>
+          label: '项目描述',
+          element: desc ? <div dangerouslySetInnerHTML={{__html: desc}}></div> : <span style={{color: '#ccc'}}>暂无</span>
         }
       ]
       extraForms = [
         {
           type: 'plain',
-          label: '头像',
-          element: <Avatar shape='square' src={userInfo.avatar} size={88} />
-        }
+          label: '项目封面',
+          element: <Avatar shape='square' src={avatar} size={88} />
+        },
+        {
+          type: 'plain',
+          label: '项目成员',
+          element: participant.map(p => (
+            <div>{p.name}</div>
+          ))
+        },
       ]
     } else {
       forms = [
@@ -70,7 +82,13 @@ class Center extends Component {
           type: 'avatar',
           label: '头像',
           name: 'avatar',
-        }
+        },
+        {
+          type: 'user-select',
+          label: '项目成员',
+          name: 'participant',
+          placeholder: '选择项目成员',
+        },
       ]
       btnText = '保存'
       showCancel = true
@@ -82,13 +100,19 @@ class Center extends Component {
           isCreating ? (
             <FormGroup
               key='1'
-              initialValues={dataFormat({ ...this.props.userInfo }, dataFormatRules, true)}
+              initialValues={dataFormat({
+                name,
+                desc,
+                avatar,
+                participant: participant.map(p => p.id)
+              }, dataFormatRules, true)}
               forms={forms}
               extraForms={extraForms}
               onFinish={this.handleFinish}
               btnText={btnText}
               showCancel={showCancel}
-              onCancel={this.handleCancel} />
+              onCancel={this.handleCancel}
+              extraClassName={s.formGroupExtra} />
           ) : (
             <FormGroup
               key='2'
@@ -97,7 +121,8 @@ class Center extends Component {
               onFinish={this.handleFinish}
               btnText={btnText}
               showCancel={showCancel}
-              onCancel={this.handleCancel} />
+              onCancel={this.handleCancel}
+              extraClassName={s.formGroupExtra} />
           )
         }
       </div>
@@ -106,16 +131,17 @@ class Center extends Component {
 
   handleFinish = values => {
     const { isCreating } = this.state
+    const { projectInfo } = this.props
 
     if (isCreating) {
-      updateUserInfo(dataFormat(values, dataFormatRules)).then(() => {
+      editProject(projectInfo.id, dataFormat(values, dataFormatRules)).then(() => {
         message.success('更新成功')
         this.setState({
           isCreating: false,
         })
-        getUserInfo().then(({ data }) => {
+        getProject({ id: projectInfo.id }).then(({ data }) => {
           if (data) {
-            this.props.setUserInfo(data)
+            this.props.setProjectInfo(data)
           }
         })
       })
@@ -131,4 +157,4 @@ class Center extends Component {
   }
 }
 
-export default Center
+export default Setting

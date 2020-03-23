@@ -5,7 +5,7 @@ import { menu } from './constant'
 import s from './style.less'
 import { connect } from 'react-redux'
 import { setProjectInfo } from '@/redux/actions'
-import { getProject } from './service'
+import { getProject } from '@/service'
 import { Loading3QuartersOutlined } from '@ant-design/icons'
 
 @connect(
@@ -55,7 +55,7 @@ class P extends Component {
             <Menu.Item key={m.key}>
               <Link to={m.key} style={{color: 'inherit'}}>
                 {m.icon}
-                &nbsp;
+                &emsp;
                 {m.name}
               </Link>
             </Menu.Item>

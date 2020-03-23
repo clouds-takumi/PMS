@@ -4,7 +4,7 @@ import {
   BuildOutlined,
   FilterOutlined,
   TagsOutlined,
-  UserOutlined
+  SettingOutlined,
 } from '@ant-design/icons'
 
 export const menu = [
@@ -28,14 +28,14 @@ export const menu = [
     name: '事项列表',
     icon: <FilterOutlined />,
   },
-  // {
-  //   key: 'tag',
-  //   name: '标签列表',
-  //   icon: <TagsOutlined />,
-  // },
   {
-    key: 'user',
-    name: '用户列表',
-    icon: <UserOutlined />,
+    key: 'tag',
+    name: '标签列表',
+    icon: <TagsOutlined />,
+  },
+  {
+    key: 'setting',
+    name: '项目设置',
+    icon: <SettingOutlined />,
   },
 ]

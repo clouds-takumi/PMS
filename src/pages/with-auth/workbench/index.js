@@ -2,7 +2,7 @@ import { Component } from 'react'
 import { RightOutlined, SoundOutlined, TagOutlined } from '@ant-design/icons'
 import Link from 'umi/link'
 import s from './style.less'
-import { getProjects } from './service'
+import { getProjects } from '@/service'
 import router from 'umi/router'
 import { Select, Empty } from 'antd'
 
@@ -135,7 +135,7 @@ class User extends Component {
                       key={project.id}
                       className={s.projectsListItem}
                       onClick={() => router.push(`/p/${project.id}/overview`)}>
-                      <div className={s.projectsLeft}></div>
+                      <img className={s.projectsLeft} src={project.avatar} alt='' />
                       <div className={s.projectsRight}>
                         <div className={s.projectsName}>{project.name}</div>
                         {

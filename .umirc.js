@@ -25,7 +25,7 @@ export default {
                 { path: '/p/:projectId/issue', component: '../pages/with-auth/p/issue' },
                 { path: '/p/:projectId/backlog', component: '../pages/with-auth/p/backlog' },
                 { path: '/p/:projectId/tag', component: '../pages/with-auth/p/tag' },
-                { path: '/p/:projectId/user', component: '../pages/with-auth/p/user' },
+                { path: '/p/:projectId/setting', component: '../pages/with-auth/p/setting' },
               ],
             },
           ],
