@@ -152,6 +152,7 @@ class Issue extends Component {
           type: 'select',
           label: '所属迭代',
           name: 'iterationId',
+          options: [],
           placeholder: '选择迭代',
         }
       ],
