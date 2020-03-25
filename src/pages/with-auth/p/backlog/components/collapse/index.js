@@ -29,7 +29,7 @@ const Collapse = ({
   changeStatus,
   startDate,
   endDate,
-  handleAdd,
+  addIssue
 }) => {
   const [addFlag, setAddFlag] = useState(false)
   const [addValueFlag, setAddValueFlag] = useState(false)
@@ -67,7 +67,7 @@ const Collapse = ({
   const handleBtnAdd = (e) => {
     if (!!inputValue) {
       const item = { iterContainerId, type, itemTitle: inputValue }
-      handleAdd(item)
+      addIssue(item)
       setInputValue('')
       setAddValueFlag(false)
     }
@@ -76,7 +76,7 @@ const Collapse = ({
   const handleEnterAdd = (e) => {
     if ((e.keyCode === 13) && !!inputValue) {
       const item = { iterContainerId, type, itemTitle: inputValue }
-      handleAdd(item)
+      addIssue(item)
       setInputValue('')
       setAddValueFlag(false)
     }

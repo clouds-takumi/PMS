@@ -37,7 +37,6 @@ const CreateIteration = ({ handleAddIter, emptyFlag }) => {
         if (!!value) {
             handleAddIter({ title: value, expand: true })
             setValue('')
-            message.success('创建迭代成功')
         }
     }
 

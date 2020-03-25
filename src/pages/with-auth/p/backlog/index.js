@@ -2,39 +2,46 @@ import { Component } from 'react'
 import { connect } from 'react-redux'
 import s from './style.less'
 import cn from 'classnames'
-import { Avatar, Icon, message, Tooltip } from 'antd'
+import { Avatar, message, Tooltip } from 'antd'
 import Collapse from './components/collapse'
+import SideSlip from '@/components/side-slip'
 import CreateIteration from './components/add-iteration'
-import { getBacklogIssues, getIteraions, getIterationIssues } from './service'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import {
+  getBacklogIssues,
+  getIteraions,
+  getIterationIssues,
+  createIssue,
+  createIteration,
+  sortIssues
+} from '@/service'
 import {
   FlagTwoTone,
   UserOutlined,
   UpCircleTwoTone,
   MinusCircleTwoTone,
   DownCircleTwoTone,
-
 } from '@ant-design/icons'
 
 class Backlog extends Component {
   state = {
     issues: { backlog: [] },
     iterations: [],
-    itemId: null,
+    curIssueId: null,
     iterationExpand: { backlog: true },
-    drawerVisible: false
+    sideSlipVisible: false
   }
 
   renderPriIcon = priority => {
     let icon
     switch (priority) {
-      case 1:
+      case 3:
         icon = <UpCircleTwoTone />
         break
       case 2:
         icon = <MinusCircleTwoTone />
         break
-      case 3:
+      case 1:
         icon = <DownCircleTwoTone />
         break
       default:
@@ -46,7 +53,7 @@ class Backlog extends Component {
     return (
       <div
         className={s.list}
-        // onClick={() => this.showDrawer(list)}
+        onClick={() => this.showSideSlip(list)}
         ref={provided.innerRef}
         {...provided.draggableProps}
         {...provided.dragHandleProps}
@@ -77,35 +84,32 @@ class Backlog extends Component {
 
   renderLists = droppableId => {
     let lists
-    const { issues, iterationExpand } = this.state
-    if (iterationExpand[droppableId]) {
-      if (issues[droppableId]) {
-        lists = issues[droppableId]
-      } else {
-        lists = []
-      }
+    const { issues } = this.state
+    if (issues[droppableId]) {
+      lists = issues[droppableId]
     } else {
       lists = []
     }
 
     return (
-      <Droppable droppableId={droppableId}>
+      <Droppable droppableId={`${droppableId}`}>
         {
-          (droppableProvided) => lists.length !== 0 ? (
-            <div className={s.lists} ref={droppableProvided.innerRef}>
-              {
-                lists.map((list, index) => (
-                  <Draggable draggableId={list.id} index={index} key={list.id}>
-                    {
-                      (draggableProvided, draggableSnapshot) => this.renderList(list, draggableProvided, draggableSnapshot.isDragging)
-                    }
-                  </Draggable>
-                ))
-              }
-              {droppableProvided.placeholder}
-            </div>
+          (droppableProvided) => lists.length !== 0
+            ? (
+              <div className={s.lists} ref={droppableProvided.innerRef}>
+                {
+                  lists.map((list, index) => (
+                    <Draggable draggableId={`${list.id}`} index={index} key={list.id}>
+                      {
+                        (draggableProvided, draggableSnapshot) => this.renderList(list, draggableProvided, draggableSnapshot.isDragging)
+                      }
+                    </Draggable>
+                  ))
+                }
+                {droppableProvided.placeholder}
+              </div>
 
-          ) :
+            ) :
             (droppableId !== 'backlog')
               ? (
                 <div className={s.emptyWrap}>
@@ -129,7 +133,7 @@ class Backlog extends Component {
   }
 
   render() {
-    const { issues, iterations, iterationExpand } = this.state
+    const { issues, iterations, iterationExpand, sideSlipVisible, curIssueId } = this.state
     return (
       <div>
         <DragDropContext onDragEnd={this.handleDragEnd}>
@@ -139,7 +143,7 @@ class Backlog extends Component {
                 type='backlog'
                 name='Backlog'
                 issuesNum={issues['backlog'].length}
-                handleAdd={this.handleAdd}>
+                addIssue={this.handleAddIssue}>
                 <div className={s.backlogBox}>
                   {this.renderLists('backlog')}
                 </div>
@@ -157,14 +161,10 @@ class Backlog extends Component {
                       iterContainerId={iteration.id}
                       delIterContainer={this.delIterContainer}
                       name={iteration.name}
-                      issuesNum={0}
+                      issuesNum={issues[`${iteration.id}`] ? issues[`${iteration.id}`].length : 0}
                       expand={iterationExpand[iteration.id]}
                       onExpand={() => this.handleExpand(iteration.id)}
-                      // status={iteration.status}
-                      // changeStatus={this.handleStatus}
-                      // startDate={iteration.startDate}
-                      // endDate={iteration.endDate}
-                      handleAdd={this.handleAdd}>
+                      addIssue={this.handleAddIssue}>
                       <div className={s.iterationsBox}>
                         {this.renderLists(iteration.id)}
                       </div>
@@ -178,6 +178,13 @@ class Backlog extends Component {
             </div>
           </div>
         </DragDropContext>
+        {
+          sideSlipVisible &&
+          <SideSlip
+            visible={sideSlipVisible}
+            id={curIssueId}
+            onCancel={() => this.handleSideSlipVisible(false)} />
+        }
       </div>
     )
   }
@@ -195,19 +202,34 @@ class Backlog extends Component {
 
   fetchIterations = () => {
     const { projectInfo } = this.props
+    const { iterationExpand } = this.state
     if (projectInfo.id) {
       getIteraions(projectInfo.id).then(({ data }) => {
         if (data.lists) {
           this.setState({ iterations: data.lists })
-          if (this.state.iterations.length > 0) {
-            const id = this.state.iterations[0].id
-            let temp = JSON.parse(JSON.stringify(this.state.iterationExpand))
+          if (data.lists.length > 0) {
+            const id = data.lists[0].id
+            let temp = JSON.parse(JSON.stringify(iterationExpand))
             temp[`${id}`] = true
             this.setState({ iterationExpand: temp })
+            for (let item of data.lists) {
+              this.fetchIterationIssues(item.id)
+            }
           }
         }
       })
     }
+  }
+
+  fetchIterationIssues = iterationId => {
+    const { projectInfo } = this.props
+    const { issues } = this.state
+    getIterationIssues(projectInfo.id, iterationId).then(({ data }) => {
+      if (data) {
+        issues[`${iterationId}`] = data.lists
+        this.setState({ issues: issues })
+      }
+    })
   }
 
   componentDidMount() {
@@ -215,13 +237,113 @@ class Backlog extends Component {
     this.fetchIterations()
   }
 
+  showSideSlip = eachItem => {
+    this.setState({ curIssueId: eachItem.id })
+    this.setState({ sideSlipVisible: true })
+  }
+
+  handleSideSlipVisible = visible => {
+    this.setState({
+      sideSlipVisible: visible,
+    })
+  }
+
   handleExpand = id => {
-    const { iterationExpand, issues } = this.state
-    // if (!iterationExpand.hasOwnProperty(id)) {
-    //   this.fetchCurIterData(id)
-    // }
+    const { iterationExpand } = this.state
     iterationExpand[id] = !iterationExpand[id]
     this.setState({ iterationExpand })
+  }
+
+  handleAddIssue = ({ iterContainerId, type, itemTitle }) => {
+    const { projectInfo } = this.props
+
+    let data
+    if (type === 'iteration') {
+      data = { name: itemTitle, iterationId: iterContainerId, priority: 2 }
+    } else {
+      data = { name: itemTitle, priority: 2 }
+    }
+
+    createIssue(projectInfo.id, data).then(() => {
+      message.success('创建成功')
+      this.fetchBacklog()
+      this.fetchIterations()
+    })
+  }
+
+  handleAddIter = ({ title, expand }) => {
+    const { projectInfo } = this.props
+    const data = { name: title, startDate: '2012-12-12', endDate: '2012-12-12' }
+    createIteration(projectInfo.id, data).then(({ data }) => {
+      const { iterationExpand } = this.state
+      if (data) {
+        iterationExpand[`${data.id}`] = true
+      }
+      this.setState({ iterationExpand })
+      this.fetchIterations()
+      message.success('创建迭代成功')
+    })
+  }
+
+  delIterContainer = (iterationId) => {
+    const newData = this.state.iterations.filter(item => item.id !== iterationId)
+    const resId = this.state.iterations.filter(item => item.id === iterationId)[0].id
+    const resData = this.state.issues[resId]
+    let newIssues = JSON.parse(JSON.stringify(this.state.issues))
+    newIssues.backlog = [...resData, ...this.state.issues.backlog]
+    delete newIssues.iterationId
+    this.setState({ iterations: newData })
+    this.setState({ issues: newIssues })
+    message.success('删除成功')
+  }
+
+  handleDragEnd = (result, a) => {
+    let params
+    const { projectInfo } = this.props
+
+    if (!result.destination) {
+      return
+    }
+
+    const { droppableId: sourceDroppableId, index: sourceDroppableIndex } = result.source
+    const { droppableId: targeDroppableId, index: targetDroppableIndex } = result.destination
+
+    if (sourceDroppableId === targeDroppableId && sourceDroppableIndex === targetDroppableIndex) {
+      return
+    }
+    const { issues } = this.state
+
+    if (sourceDroppableId === targeDroppableId) {
+      const curArray = issues[sourceDroppableId]
+      const sourceId = curArray[sourceDroppableIndex].id
+      const targetId = curArray[targetDroppableIndex].id
+
+      const cur = curArray.splice(sourceDroppableIndex, 1)[0]
+      curArray.splice(targetDroppableIndex, 0, cur)
+      issues[sourceDroppableId] = curArray
+
+      params = { sourceId, targetId, targetIterationId: sourceDroppableId }
+    } else {
+      const curArray1 = issues[sourceDroppableId]
+      const curArray2 = issues[targeDroppableId]
+      const sourceId = curArray1[sourceDroppableIndex].id
+      const targetId = curArray2[targetDroppableIndex].id
+
+      const cur = curArray1.splice(sourceDroppableIndex, 1)[0]
+      curArray2.splice(targetDroppableIndex, 0, cur)
+      issues[sourceDroppableId] = curArray1
+      issues[targeDroppableId] = curArray2
+      
+      params = { sourceId, targetId, targetIterationId: targeDroppableId }
+    }
+    this.setState({ issues })
+    sortIssues(
+      projectInfo.id,
+      params
+    ).then(() => {
+      this.fetchIterations()
+      this.fetchBacklog()
+    })
   }
 
 }

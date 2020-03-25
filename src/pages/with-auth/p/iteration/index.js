@@ -170,6 +170,8 @@ class Iteration extends Component {
       initialValues
     } = this.state
 
+    console.log(iterations)
+
     return (
       <div className={s.wrapper}>
         <CreateModal
@@ -194,7 +196,8 @@ class Iteration extends Component {
           dataSource={iterations.lists}
           columns={columns}
           rowKey='id'
-        // pagination={{ total: iterations.total, pageSize: 8, hideOnSinglePage: true, onChange: this.handlePageChange }}
+          // TODO:
+          // pagination={{ total: iterations.total, pageSize: 20, hideOnSinglePage: true, onChange: this.handlePageChange }}
         />
         {
           delFlag && this.renderDelModal()

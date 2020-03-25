@@ -121,6 +121,7 @@ class User extends Component {
 
   render() {
     const { projects} = this.state
+    console.log(projects)
 
     return (
       <div className={s.wrapper}>

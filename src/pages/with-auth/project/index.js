@@ -62,7 +62,7 @@ class Projects extends Component {
     document.getElementsByTagName("title")[0].innerText = '项目列表'
   }
 
-  renderModal = () => {
+  renderAddModal = () => {
     const { forms, extraForms } = this.state
     // const { projectName, nameTip } = this.state
     return (
@@ -184,7 +184,7 @@ class Projects extends Component {
         </div>
 
         {
-          modalFlag && this.renderModal()
+          modalFlag && this.renderAddModal()
         }
       </div>
     );
