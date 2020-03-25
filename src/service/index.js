@@ -138,7 +138,8 @@ export const getIterationIssues = (projectId, id) => request({
   params: { pageSize: 99999999999, iterationId: id }
 })
 
-export const sortIssues = (projectId, params) => request({
-  url: `/p/${projectId}/issues/sort`,
-  params
+export const sortIssues = (projectId, data) => request({
+  method: 'post',
+  url: `/p/${projectId}/issue/sort`,
+  data
 })

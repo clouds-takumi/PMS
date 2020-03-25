@@ -298,7 +298,7 @@ class Backlog extends Component {
   }
 
   handleDragEnd = (result, a) => {
-    let params
+    let data, targetIterationId
     const { projectInfo } = this.props
 
     if (!result.destination) {
@@ -313,39 +313,94 @@ class Backlog extends Component {
     }
     const { issues } = this.state
 
+    if (targeDroppableId === 'backlog') {
+      targetIterationId = '0'
+    } else {
+      targetIterationId = `${targeDroppableId}`
+    }
+
     if (sourceDroppableId === targeDroppableId) {
       const curArray = issues[sourceDroppableId]
-      const sourceId = curArray[sourceDroppableIndex].id
-      const targetId = curArray[targetDroppableIndex].id
+      const sourceId = `${curArray[sourceDroppableIndex].id}`
+      const targetId = `${curArray[targetDroppableIndex].id}`
 
       const cur = curArray.splice(sourceDroppableIndex, 1)[0]
       curArray.splice(targetDroppableIndex, 0, cur)
       issues[sourceDroppableId] = curArray
 
-      params = { sourceId, targetId, targetIterationId: sourceDroppableId }
+      data = { sourceId, targetId, targetIterationId }
     } else {
       const curArray1 = issues[sourceDroppableId]
       const curArray2 = issues[targeDroppableId]
-      const sourceId = curArray1[sourceDroppableIndex].id
-      const targetId = curArray2[targetDroppableIndex].id
+      const sourceId = `${curArray1[sourceDroppableIndex].id}`
+
+      if (curArray2.length !== 0) {
+        const targetId = `${curArray2[targetDroppableIndex].id}`
+        data = { sourceId, targetId, targetIterationId }
+      } else {
+        data = { sourceId, targetIterationId }
+      }
 
       const cur = curArray1.splice(sourceDroppableIndex, 1)[0]
       curArray2.splice(targetDroppableIndex, 0, cur)
       issues[sourceDroppableId] = curArray1
       issues[targeDroppableId] = curArray2
-      
-      params = { sourceId, targetId, targetIterationId: targeDroppableId }
     }
+
     this.setState({ issues })
+
+    console.log(data)
     sortIssues(
       projectInfo.id,
-      params
+      data
     ).then(() => {
-      this.fetchIterations()
-      this.fetchBacklog()
+
+      this.fetchSortData(
+        sourceDroppableId === 'backlog' ? 0 : targetIterationId,
+        targeDroppableId === 'backlog' ? 0 : targeDroppableId)
     })
   }
 
+  fetchSortData = (id1, id2) => {
+    const { projectInfo } = this.props
+    const { issues } = this.state
+    if (id1 === id2) {
+      getIterationIssues(projectInfo.id, id1).then(({ data }) => {
+        if (data.lists) {
+          if (id1 === 0) {
+            issues.backlog = data.lists
+          } else {
+            issues[`${id1}`] = data.lists
+          }
+          this.setState({ issues })
+          message.success('更新成功')
+        }
+      })
+    } else {
+      getIterationIssues(projectInfo.id, id1).then(({ data }) => {
+        if (data.lists) {
+          if (id1 === 0) {
+            issues.backlog = data.lists
+          } else {
+            issues[`${id1}`] = data.lists
+          }
+          this.setState({ issues })
+          message.success('更新成功')
+        }
+      })
+      getIterationIssues(projectInfo.id, id2).then(({ data }) => {
+        if (data.lists) {
+          if (id2 === 0) {
+            issues.backlog = data.lists
+          } else {
+            issues[`${id2}`] = data.lists
+          }
+          this.setState({ issues })
+          message.success('更新成功')
+        }
+      })
+    }
+  }
 }
 
 export default connect(store => ({ projectInfo: store.projectInfo }))(Backlog)
