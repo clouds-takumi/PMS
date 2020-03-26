@@ -18,6 +18,10 @@ const dataFormatRules = [
     key: 'deadline',
     type: 'moment',
   },
+  {
+    key: 'tags',
+    type: 'array',
+  },
 ]
 
 const priorityMap = [
@@ -151,11 +155,11 @@ class Issue extends Component {
           rules: [{ required: true, message: '请选择优先等级' }]
         },
         {
-          type: 'select',
+          type: 'user-select',
           label: '处理人',
           name: 'assignee',
-          options: participant,
-          placeholder: '选择处理人'
+          placeholder: '选择处理人',
+          single: true,
         },
         {
           type: 'date',
@@ -168,6 +172,12 @@ class Issue extends Component {
           name: 'iterationId',
           options: [],
           placeholder: '选择迭代',
+        },
+        {
+          type: 'tag-select',
+          label: '标签',
+          name: 'tags',
+          placeholder: '选择标签',
         }
       ],
       initialValues: null
@@ -245,7 +255,7 @@ class Issue extends Component {
     }
   }
 
-  handleEdit = ({ id, name, desc, priority, assignee, deadline, iterationId }) => {
+  handleEdit = ({ id, name, desc, priority, assignee, deadline, iterationId, tags }) => {
     this.setState({
       initialValues: dataFormat({
         id,
@@ -255,6 +265,7 @@ class Issue extends Component {
         assignee: assignee ? assignee.id : null,
         deadline,
         iterationId,
+        tags: tags.map(tag => tag.id),
       }, dataFormatRules, true),
       visible: true,
     })
