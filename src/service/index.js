@@ -123,17 +123,12 @@ export const getActivity = projectId => request({
 })
 
 // backlog
-export const getBacklogIssues = projectId => request({
-  url: `/p/${projectId}/issues`,
-  params: { pageSize: 99999999999, iterationId: 0 }
-})
-
 export const getIteraions = projectId => request({
   url: `/p/${projectId}/iterations`,
   params: { pageSize: 99999999999 }
 })
 
-export const getIterationIssues = (projectId, id) => request({
+export const getIterationIssues = (projectId, id = 0) => request({
   url: `/p/${projectId}/issues`,
   params: { pageSize: 99999999999, iterationId: id }
 })
@@ -142,4 +137,9 @@ export const sortIssues = (projectId, data) => request({
   method: 'post',
   url: `/p/${projectId}/issue/sort`,
   data
+})
+
+export const deleteCurIteration = (projectId, id) => request({
+  method: 'delete',
+  url: `/p/${projectId}/iteration/${id}`
 })

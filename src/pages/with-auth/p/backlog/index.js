@@ -2,18 +2,19 @@ import { Component } from 'react'
 import { connect } from 'react-redux'
 import s from './style.less'
 import cn from 'classnames'
+import { dataFormat } from '@/utils'
 import { Avatar, message, Tooltip } from 'antd'
 import Collapse from './components/collapse'
 import SideSlip from '@/components/side-slip'
 import CreateIteration from './components/add-iteration'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 import {
-  getBacklogIssues,
   getIteraions,
   getIterationIssues,
   createIssue,
   createIteration,
-  sortIssues
+  sortIssues,
+  deleteCurIteration
 } from '@/service'
 import {
   FlagTwoTone,
@@ -22,6 +23,21 @@ import {
   MinusCircleTwoTone,
   DownCircleTwoTone,
 } from '@ant-design/icons'
+
+const dataFormatRules = [
+  {
+    key: 'desc',
+    type: 'html',
+  },
+  {
+    key: 'startDate',
+    type: 'moment',
+  },
+  {
+    key: 'endDate',
+    type: 'moment',
+  }
+]
 
 class Backlog extends Component {
   state = {
@@ -134,6 +150,7 @@ class Backlog extends Component {
 
   render() {
     const { issues, iterations, iterationExpand, sideSlipVisible, curIssueId } = this.state
+    console.log(iterations)
     return (
       <div>
         <DragDropContext onDragEnd={this.handleDragEnd}>
@@ -162,6 +179,9 @@ class Backlog extends Component {
                       delIterContainer={this.delIterContainer}
                       name={iteration.name}
                       issuesNum={issues[`${iteration.id}`] ? issues[`${iteration.id}`].length : 0}
+                      startDate={iteration.startDate}
+                      endDate={iteration.endDate}
+                      status={1}
                       expand={iterationExpand[iteration.id]}
                       onExpand={() => this.handleExpand(iteration.id)}
                       addIssue={this.handleAddIssue}>
@@ -191,10 +211,12 @@ class Backlog extends Component {
 
   fetchBacklog = () => {
     const { projectInfo } = this.props
+    const { issues } = this.state
     if (projectInfo.id) {
-      getBacklogIssues(projectInfo.id).then(({ data }) => {
+      getIterationIssues(projectInfo.id).then(({ data }) => {
         if (data.lists) {
-          this.setState({ issues: { backlog: data.lists } })
+          issues['backlog'] = data.lists
+          this.setState({ issues })
         }
       })
     }
@@ -209,12 +231,9 @@ class Backlog extends Component {
           this.setState({ iterations: data.lists })
           if (data.lists.length > 0) {
             const id = data.lists[0].id
-            let temp = JSON.parse(JSON.stringify(iterationExpand))
-            temp[`${id}`] = true
-            this.setState({ iterationExpand: temp })
-            for (let item of data.lists) {
-              this.fetchIterationIssues(item.id)
-            }
+            iterationExpand[`${id}`] = true
+            this.setState({ iterationExpand })
+            this.fetchIterationIssues(id)
           }
         }
       })
@@ -252,6 +271,7 @@ class Backlog extends Component {
     const { iterationExpand } = this.state
     iterationExpand[id] = !iterationExpand[id]
     this.setState({ iterationExpand })
+    this.fetchIterationIssues(id)
   }
 
   handleAddIssue = ({ iterContainerId, type, itemTitle }) => {
@@ -266,15 +286,31 @@ class Backlog extends Component {
 
     createIssue(projectInfo.id, data).then(() => {
       message.success('创建成功')
-      this.fetchBacklog()
-      this.fetchIterations()
+      if (type === 'iteration') {
+        this.fetchIterationIssues(iterContainerId)
+      } else {
+        this.fetchBacklog()
+      }
     })
   }
 
-  handleAddIter = ({ title, expand }) => {
+  // handleAddIter = ({ title, expand }) => {
+  //   const { projectInfo } = this.props
+  //   const data = { name: title, startDate: '2012-12-12', endDate: '2012-12-12' }
+  //   createIteration(projectInfo.id, data).then(({ data }) => {
+  //     const { iterationExpand } = this.state
+  //     if (data) {
+  //       iterationExpand[`${data.id}`] = true
+  //     }
+  //     this.setState({ iterationExpand })
+  //     this.fetchIterations()
+  //     message.success('创建迭代成功')
+  //   })
+  // }
+
+  handleAddIter = values => {
     const { projectInfo } = this.props
-    const data = { name: title, startDate: '2012-12-12', endDate: '2012-12-12' }
-    createIteration(projectInfo.id, data).then(({ data }) => {
+    createIteration(projectInfo.id, dataFormat(values, dataFormatRules)).then(({ data }) => {
       const { iterationExpand } = this.state
       if (data) {
         iterationExpand[`${data.id}`] = true
@@ -285,16 +321,22 @@ class Backlog extends Component {
     })
   }
 
-  delIterContainer = (iterationId) => {
-    const newData = this.state.iterations.filter(item => item.id !== iterationId)
-    const resId = this.state.iterations.filter(item => item.id === iterationId)[0].id
-    const resData = this.state.issues[resId]
-    let newIssues = JSON.parse(JSON.stringify(this.state.issues))
-    newIssues.backlog = [...resData, ...this.state.issues.backlog]
-    delete newIssues.iterationId
-    this.setState({ iterations: newData })
-    this.setState({ issues: newIssues })
-    message.success('删除成功')
+  delIterContainer = iterationId => {
+    // const { issues, iterations } = this.state
+    // const newData = iterations.filter(item => item.id !== iterationId)
+    // const resId = iterations.filter(item => item.id === iterationId)[0].id
+    // const resData = issues[resId]
+    // issues.backlog = [...resData, ...issues.backlog]
+    // delete issues.iterationId
+    // this.setState({ iterations: newData })
+    // this.setState({ issues })
+    // message.success('删除成功')
+    const { projectInfo } = this.props
+    deleteCurIteration(projectInfo.id, iterationId).then(() => {
+      this.fetchIterations()
+      this.fetchBacklog()
+      message.success('删除成功')
+    })
   }
 
   handleDragEnd = (result, a) => {
@@ -314,7 +356,7 @@ class Backlog extends Component {
     const { issues } = this.state
 
     if (targeDroppableId === 'backlog') {
-      targetIterationId = '0'
+      targetIterationId = null
     } else {
       targetIterationId = `${targeDroppableId}`
     }
@@ -335,8 +377,12 @@ class Backlog extends Component {
       const sourceId = `${curArray1[sourceDroppableIndex].id}`
 
       if (curArray2.length !== 0) {
-        const targetId = `${curArray2[targetDroppableIndex].id}`
-        data = { sourceId, targetId, targetIterationId }
+        if (targetDroppableIndex < curArray2.length - 1) {
+          const targetId = `${curArray2[targetDroppableIndex].id}`
+          data = { sourceId, targetId, targetIterationId }
+        } else {
+          data = { sourceId, targetIterationId }
+        }
       } else {
         data = { sourceId, targetIterationId }
       }
@@ -373,7 +419,6 @@ class Backlog extends Component {
             issues[`${id1}`] = data.lists
           }
           this.setState({ issues })
-          message.success('更新成功')
         }
       })
     } else {
@@ -385,7 +430,6 @@ class Backlog extends Component {
             issues[`${id1}`] = data.lists
           }
           this.setState({ issues })
-          message.success('更新成功')
         }
       })
       getIterationIssues(projectInfo.id, id2).then(({ data }) => {
@@ -396,7 +440,6 @@ class Backlog extends Component {
             issues[`${id2}`] = data.lists
           }
           this.setState({ issues })
-          message.success('更新成功')
         }
       })
     }

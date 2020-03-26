@@ -377,7 +377,7 @@ const Collapse = ({
                   </Dropdown>
                   {status === 1 && (
                     <div className={s.date}>
-                      {startDate} - {endDate}
+                      {startDate} / {endDate}
                     </div>
                   )
                   }
