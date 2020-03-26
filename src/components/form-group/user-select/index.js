@@ -9,13 +9,13 @@ class UserSelect extends Component {
 
     render() {
         const { options } = this.state
-        const { value, placeholder } = this.props
+        const { value, placeholder, single } = this.props
         return (
             <Select
               value={value}
               onChange={this.handleChange}
               allowClear
-              mode='multiple'
+              mode={single ? null : 'multiple'}
               placeholder={placeholder}>
                 {
                     options.map(option => (

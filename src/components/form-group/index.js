@@ -8,6 +8,7 @@ import InputColor from 'react-input-color'
 import MyAvatar from './avatar'
 import IterationSelect from './iteration-select'
 import UserSelect from './user-select'
+import TagSelect from './tag-select'
 import cn from 'classnames'
 
 class FormGroup extends Component {
@@ -77,7 +78,7 @@ class FormGroup extends Component {
     )
   }
 
-  renderForm = ({ type, name, style, placeholder, label, rules, size, element, options = [] }) => {
+  renderForm = ({ type, name, style, placeholder, label, rules, size, element, options = [], single }) => {
     let ele = <Input size={size} placeholder={placeholder} />
 
     if (type === 'password') {
@@ -123,7 +124,11 @@ class FormGroup extends Component {
     }
 
     if (type === 'user-select') {
-      ele = <UserSelect placeholder={placeholder} />
+      ele = <UserSelect placeholder={placeholder} single={single} />
+    }
+
+    if (type === 'tag-select') {
+      ele = <TagSelect placeholder={placeholder} />
     }
 
     return (
