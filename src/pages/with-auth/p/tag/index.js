@@ -127,9 +127,10 @@ class Tags extends PureComponent {
     this.setState({ loading: true })
     if (projectInfo) {
       getTags(projectInfo.id).then(({ data }) => {
+        console.log(data)
         if (data) {
           this.setState({ loading: false })
-          this.setState({ tags: data })
+          this.setState({ tags: data.rows })
         }
       })
     }
