@@ -8,7 +8,7 @@ import { getUserInfo } from '@/service';
 import { setUserInfo } from '@/redux/actions'
 import Link from 'umi/link';
 
-const pathReg = /^\/p/
+const pathReg = /^\/p\//
 @connect(
   store => ({ userInfo: store.userInfo, projectInfo: store.projectInfo }),
   dispatch => ({
@@ -35,20 +35,19 @@ class WithAuth extends Component {
         <div className={s.header}>
           {
             showLogo
-              ? <Link to='/'>
-                  <div className={s.logo}>PMS</div>
-                </Link>
+              ?
+              <Link to='/'><div className={s.logo}>PMS</div></Link>
               : <Link to='/'>
-                  <div className={s.logo}>
-                    <LeftOutlined className={s.logoLink} />
-                    <div>{projectInfo.name}</div>
-                  </div>
-                </Link>
+                <div className={s.logo}>
+                  <LeftOutlined className={s.logoLink} />
+                  <div>{projectInfo.name}</div>
+                </div>
+              </Link>
           }
           <div className={s.headerRight}>
             <Dropdown overlay={this.renderMenu()}>
               <div className={s.avatar}>
-                <span style={{marginRight: 8}}>{userInfo.name}</span>
+                <span style={{ marginRight: 8 }}>{userInfo.name}</span>
                 <Avatar className={s.avatarEle} src={userInfo.avatar} />
                 <DownOutlined />
               </div>

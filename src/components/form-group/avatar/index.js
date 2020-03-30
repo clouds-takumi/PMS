@@ -8,7 +8,7 @@ class MyAvatar extends Component {
   }
 
   render() {
-    const { value } = this.props
+    const { value, btnText } = this.props
     const { loading } = this.state
 
     return (
@@ -17,7 +17,7 @@ class MyAvatar extends Component {
           {
             loading
               ? <Spin className={s.spin} />
-              : <Avatar shape='square' src={value} size={88} />
+              : <Avatar shape='square' src={value} size={88} className={s.img} />
           }
         </div>
         <Upload
@@ -29,7 +29,7 @@ class MyAvatar extends Component {
             showRemoveIcon: false
           }}
           beforeUpload={this.handleBeforeUpload}>
-          <Button>更改头像</Button>
+          <Button>{btnText ? btnText : '更换头像'}</Button>
         </Upload>
       </div>
     )

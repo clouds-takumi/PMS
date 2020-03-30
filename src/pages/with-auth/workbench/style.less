@@ -47,12 +47,17 @@
   }
 }
 
-.projectsLeft {
+.projectsImg {
   width: 64px;
   height: 64px;
-  background: #fff no-repeat;
+  background: no-repeat;
+  border: none;
   background-size: cover;
   flex-shrink: 0;
+}
+
+.imgBk {
+  background-color: #939eb4;
 }
 
 .projectAdd {
@@ -96,7 +101,8 @@
   flex: 1 1 auto;
   display: flex;
   flex-direction: column;
-  max-height: 1280px;
+  height: 510px;
+  overflow: hidden;
 
   .titleContainer {
     flex: 0 0 auto;
@@ -153,8 +159,8 @@
     vertical-align: top;
     font-size: 14px;
   }
-  
-  .selectStyle{
+
+  .selectStyle {
     width: 140px;
   }
 }
@@ -181,7 +187,7 @@
     border-color: #355f9e;
   }
 
-  .workItemChecked{
+  .workItemChecked {
     border-bottom: 2px solid #355f9e;
   }
 

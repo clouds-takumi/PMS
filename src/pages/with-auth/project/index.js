@@ -1,7 +1,6 @@
 import { Component } from 'react'
-// import _ from 'lodash'
 import s from './style.less'
-// import cn from 'classnames'
+import cn from 'classnames'
 import router from 'umi/router'
 import { getProjects, createProject } from '@/service'
 import { Divider, Drawer, message } from 'antd'
@@ -29,7 +28,8 @@ class Projects extends Component {
       forms: [
         {
           label: '项目名称',
-          style: { fontSize: '14px', color: '#202d40', fontWeight: 700 },
+          // FIXME: 额外设置label的样式出错，效果是将整个item设置了额外的样式
+          itemExtraClassName: s.formItem,
           name: 'name',
           rules: [
             { required: true, message: '请输入项目名称' },
@@ -39,7 +39,7 @@ class Projects extends Component {
         {
           type: 'editor',
           label: '项目描述',
-          style: { fontSize: '14px', color: '#202d40', fontWeight: 700 },
+          itemExtraClassName: s.formItem,
           name: 'desc',
         },
       ],
@@ -48,6 +48,7 @@ class Projects extends Component {
           type: 'avatar',
           label: '项目封面',
           name: 'avatar',
+          buttonText: '更换封面'
         },
         {
           type: 'user-select',
@@ -56,15 +57,12 @@ class Projects extends Component {
           placeholder: '选择项目成员',
         }
       ]
-      // projectName: '',
-      // nameTip: false,
     }
     document.getElementsByTagName("title")[0].innerText = '项目列表'
   }
 
   renderAddModal = () => {
     const { forms, extraForms } = this.state
-    // const { projectName, nameTip } = this.state
     return (
       <Drawer
         title=""
@@ -84,48 +82,13 @@ class Projects extends Component {
               <div className={s.title}>
                 <span>填写项目基本信息</span>
               </div>
-              <div style={{ display: 'flex' }}>
-                <div style={{ marginRight: '32px', width: '700px' }}>
-                  <FormGroup
-                    forms={forms}
-                    extraForms={extraForms}
-                    extraClassName={s.formGroupExtra}
-                    onFinish={this.onFinish} />
-                </div>
-                {/* <div className={s.infoPic}>
-                  <span className={s.picTitle}>项目封面</span>
-                  <div className={s.bcImg}></div>
-                  <button className={s.changeBtn} >更改封面</button>
-                </div> */}
+              <div className={s.formWrap}>
+                <FormGroup
+                  forms={forms}
+                  extraForms={extraForms}
+                  extraClassName={s.formGroupExtra}
+                  onFinish={this.onFinish} />
               </div>
-
-
-              {/* <div style={{ display: 'flex' }}>
-                <div style={{ marginRight: '32px', width: '500px' }}>
-                  <div className={s.item}>
-                    <div className={s.subtitle}>项目名称</div>
-                    <Input value={projectName} onChange={this.handleNameChange} />
-                    <span className={s.tips} style={nameTip ? { color: 'red' } : {}}>{nameTip ? '项目名称不能为空' : '可以使用中英文、数字、空格组合'}</span>
-                  </div>
-                  <div className={s.item}>
-                    <div className={s.subtitle}>项目描述</div>
-                    <span className={s.tips}>
-                      <Input.TextArea
-                        rows={4}
-                        placeholder='描述内容限制在100字以内（选填）'
-                        className={s.text} />
-                    </span>
-                  </div>
-                  <button className={cn(s.btn, s.leftBtn)} onClick={this.handleCreate}>完成创建</button>
-                  <button className={s.btn} onClick={this.goback}>取消</button>
-                </div>
-
-                <div className={s.infoPic}>
-                  <span className={s.picTitle}>项目封面</span>
-                  <div className={s.bcImg}></div>
-                  <button className={s.changeBtn} >更改封面</button>
-                </div>
-              </div> */}
             </div>
           </div>
         </div>
@@ -145,9 +108,9 @@ class Projects extends Component {
             </div>
           </div>
           <div className={s.prolists}>
-            <div className={s.proItem} style={{ backgroundColor: '#dadfe6' }}>
-              <ForkOutlined style={{ marginRight: '8px', fontSize: '12px' }} />
-              <div>我参与的</div>
+            <div className={cn(s.proItem, s.proItemChecked)} >
+              <ForkOutlined className={s.iconStyle} />
+              <div>我管理的</div>
             </div>
           </div>
         </div>
@@ -173,8 +136,8 @@ class Projects extends Component {
                     className={s.pItem}
                     key={project.id}
                     onClick={() => router.push(`/p/${project.id}/overview`)}>
-                    {/* <div className={s.itemImgx}></div> */}
-                    <img src={project.avatar} className={s.itemImgx} alt='' />
+                    {/* FIXME: 没有项目图片src的时候，出现的背景图像样式问题，有的出现border */}
+                    <img src={project.avatar} className={cn(s.itemImgx, !project.avatar && s.itemImgxColor)} alt='' />
                     <div className={s.itemName}>{project.name}</div>
                   </div>
                 )
@@ -211,40 +174,6 @@ class Projects extends Component {
   }
 
   goback = () => this.setState({ modalFlag: false })
-  // goback = () => this.setState({ modalFlag: false, projectName: '' })
-
-  // handleNameChange = (e) => {
-  //   let name = e.target.value
-  //   this.setState({ projectName: name })
-  //   if (name === '') {
-  //     this.setState({ nameTip: true })
-  //   } else {
-  //     this.setState({ nameTip: false })
-  //   }
-  // }
-
-  // handleCreate = async () => {
-  //   const { projectName } = this.state
-  //   if (!projectName) {
-  //     this.fun1()
-  //     return
-  //   }
-  //   if (projectName.length > 20) {
-  //     this.fun2()
-  //     return
-  //   }
-  //   const product = { name: projectName }
-  //   const result = await createProject(product)
-  //   if (result) {
-  //     message.success('创建成功')
-  //     this.setState({ modalFlag: false, projectName: '' })
-  //     this.fetchProjects()
-  //   }
-  // }
-  // fun1 = _.throttle(() => message.info({ top: 0, key: '1', content: '请填写需求名称' }), 3000)
-  // fun2 = _.throttle(() => message.info({ top: 0, key: '1', content: '项目名称超过了20个字符' }), 3000)
 }
-
-
 
 export default Projects

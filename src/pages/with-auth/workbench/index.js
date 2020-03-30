@@ -120,7 +120,7 @@ class User extends Component {
         {
           switchType === '1' && !projectId && (
             <div>
-              <Empty description={'未选择查看项目，或当前项目没有动态'} />
+              <Empty description={'未选择查看项目'} />
             </div>
           )
         }
@@ -160,7 +160,14 @@ class User extends Component {
             {
               projects.length > 0
                 ? (
-                  <Select placeholder='选择查看项目' allowClear className={s.selectStyle} onChange={this.handleSelect}>
+                  <Select
+                    placeholder='选择查看项目'
+                    // FIXME: 默认选择没有显示
+                    defaultValue={projects[0].id}
+                    allowClear
+                    className={s.selectStyle}
+                    onChange={this.handleSelect}
+                  >
                     {
                       projects.map(item => (
                         <Select.Option value={item.id} key={item.id}>
@@ -233,11 +240,13 @@ class User extends Component {
                       key={project.id}
                       className={s.projectsListItem}
                       onClick={() => router.push(`/p/${project.id}/overview`)}>
-                      <img className={s.projectsLeft} src={project.avatar} alt='' />
+                      {/* FIXME: 没有项目图片src的时候，出现的背景图像样式问题，有的出现border */}
+                      <img className={cn(s.projectsImg, !project.avatar && s.imgBk)} src={project.avatar} alt='' />
                       <div className={s.projectsRight}>
                         <div className={s.projectsName}>{project.name}</div>
                         {
                           project.desc && project.desc !== '<p></p>' ? (
+                            // FIXME: 超出的内容部分text-overflow样式
                             <div className={s.projectsDesc} dangerouslySetInnerHTML={{ __html: project.desc }}></div>
                           ) : <div className={s.projectsDesc}>未填写描述</div>
                         }
@@ -259,6 +268,7 @@ class User extends Component {
           </div>
         </div>
         <div className={s.work}>
+          {/* FIXME:内容超过的区域overflow样式 */}
           {
             this.renderWorkContainer()
           }
@@ -274,7 +284,12 @@ class User extends Component {
   fetchProjects = () => {
     getProjects().then(({ data }) => {
       if (data && data.lists) {
-        this.setState({ projects: data.lists })
+        this.setState({ projects: data.lists, projectId: data.lists[0].id })
+        getActivity(data.lists[0].id).then(({ data }) => {
+          this.setState({
+            activities: data,
+          })
+        })
       }
     })
   }

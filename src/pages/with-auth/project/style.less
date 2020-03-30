@@ -5,6 +5,7 @@
   margin-top: 30px;
   height: calc(100vh - 78px);
   max-width: 1200px;
+  overflow: hidden;
 }
 
 .leftNav {
@@ -42,6 +43,15 @@
     padding: 10px 40px;
     line-height: 20px;
   }
+
+  .proItemChecked {
+    background-color: #dadfe6;
+  }
+
+  .iconStyle {
+    margin-right: 8px;
+    font-size: 12px;
+  }
 }
 
 .drawerInner {
@@ -75,6 +85,8 @@
     display: flex;
     align-items: center;
     flex-wrap: wrap;
+    overflow: scroll;
+    height: 100%;
   }
 
   .mItem {
@@ -130,6 +142,10 @@
     font-size: 20px;
   }
 
+  .itemImgxColor {
+    background-color: #939eb4;
+  }
+
   .itemName {
     width: 100%;
     align-self: flex-start;
@@ -146,7 +162,7 @@
   min-width: 1000px;
   z-index: 223;
   background-color: #fff;
-  // opacity: 0.999;
+  opacity: 0.9999;
   height: 100vh;
   width: 100%;
 }
@@ -158,7 +174,7 @@
 
   .rightContent {
     width: 100%;
-    padding-top: 90px;
+    padding-top: 40px;
   }
 }
 
@@ -166,7 +182,7 @@
   font-size: 24px;
   color: #202d40;
   line-height: 32px;
-  margin-bottom: 30px;
+  // margin-bottom: 20px;
 }
 
 .item {
@@ -279,4 +295,15 @@
 
 .formGroupExtra {
   background: #fff;
+}
+
+.formItem {
+  font-size: 14px;
+  color: #202d40;
+  font-weight: 700;
+}
+
+.formWrap {
+  margin-right: 32px;
+  width: 750px;
 }

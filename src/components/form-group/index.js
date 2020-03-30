@@ -78,7 +78,7 @@ class FormGroup extends Component {
     )
   }
 
-  renderForm = ({ type, name, style, placeholder, label, rules, size, element, options = [], single }) => {
+  renderForm = ({ type, buttonText, name, itemExtraClassName, placeholder, label, rules, size, element, options = [], single }) => {
     let ele = <Input size={size} placeholder={placeholder} />
 
     if (type === 'password') {
@@ -112,7 +112,7 @@ class FormGroup extends Component {
     }
 
     if (type === 'avatar') {
-      ele = <MyAvatar />
+      ele = <MyAvatar btnText={buttonText} />
     }
 
     if (type === 'plain') {
@@ -135,8 +135,8 @@ class FormGroup extends Component {
       <Form.Item
         key={name || label}
         label={label}
+        // className={itemExtraClassName ? itemExtraClassName : null}
         name={name}
-        style={style ? style : null}
         rules={rules}>
         {ele}
       </Form.Item>
